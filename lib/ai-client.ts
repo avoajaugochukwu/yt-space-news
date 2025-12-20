@@ -1,4 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenAI } from '@ai-sdk/openai';
 import { generateText, streamText } from 'ai';
 
 // Initialize Anthropic client
@@ -6,8 +7,14 @@ const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Default model
+// Initialize OpenAI client
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Default models
 const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
+const OPENAI_MODEL = 'gpt-4o';
 
 export async function generateWithClaude(
   prompt: string,
@@ -28,6 +35,17 @@ export function streamWithClaude(
 ) {
   return streamText({
     model: anthropic(DEFAULT_MODEL),
+    system: systemPrompt,
+    prompt,
+  });
+}
+
+export function streamWithOpenAI(
+  prompt: string,
+  systemPrompt?: string
+) {
+  return streamText({
+    model: openai(OPENAI_MODEL),
     system: systemPrompt,
     prompt,
   });

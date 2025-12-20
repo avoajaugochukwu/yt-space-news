@@ -14,6 +14,8 @@ interface ScriptWriterProps {
 
 type GenerationPhase = 'outline' | 'phase1' | 'phase2' | 'phase3' | 'complete';
 
+type ScriptTab = 'clean' | 'tts';
+
 export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
   const [outline, setOutline] = useState<ScriptOutline | null>(null);
   const [script, setScript] = useState<GeneratedScript | null>(null);
@@ -21,6 +23,12 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // TTS optimization state
+  const [activeTab, setActiveTab] = useState<ScriptTab>('clean');
+  const [ttsScript, setTtsScript] = useState<string>('');
+  const [isTtsLoading, setIsTtsLoading] = useState(false);
+  const [ttsCopied, setTtsCopied] = useState(false);
 
   useEffect(() => {
     generateOutline();
@@ -105,6 +113,50 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const copyTtsToClipboard = () => {
+    navigator.clipboard.writeText(ttsScript);
+    setTtsCopied(true);
+    setTimeout(() => setTtsCopied(false), 2000);
+  };
+
+  const generateTtsScript = async () => {
+    if (!script || !outline) return;
+
+    setIsTtsLoading(true);
+    setTtsScript('');
+
+    try {
+      const response = await fetch('/api/tts-optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script: getCleanScript() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate TTS script');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No reader available');
+
+      const decoder = new TextDecoder();
+      let accumulated = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        accumulated += chunk;
+        setTtsScript(accumulated);
+      }
+    } catch (err) {
+      console.error('TTS generation error:', err);
+    } finally {
+      setIsTtsLoading(false);
+    }
+  };
+
   const renderPhaseStatus = (phaseId: string, index: number) => {
     const phaseMap: Record<number, GenerationPhase> = {
       0: 'phase1',
@@ -170,20 +222,92 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
               Phase-based script generation for maximum control
             </p>
           </div>
-          {script && (
+          {script && activeTab === 'clean' && (
             <ActionButton onClick={copyToClipboard}>
               {copied ? 'Copied!' : 'Copy Script'}
             </ActionButton>
           )}
+          {script && activeTab === 'tts' && ttsScript && (
+            <ActionButton onClick={copyTtsToClipboard}>
+              {ttsCopied ? 'Copied!' : 'Copy TTS Script'}
+            </ActionButton>
+          )}
         </div>
+
+        {/* Tabs */}
+        {script && (
+          <div className="flex gap-2 border-b border-[var(--border)] pb-2">
+            <button
+              onClick={() => setActiveTab('clean')}
+              className={`px-4 py-2 text-sm font-mono rounded-t-md transition-all ${
+                activeTab === 'clean'
+                  ? 'bg-[var(--accent)] text-white'
+                  : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+              }`}
+            >
+              Clean Script
+            </button>
+            <button
+              onClick={() => setActiveTab('tts')}
+              className={`px-4 py-2 text-sm font-mono rounded-t-md transition-all ${
+                activeTab === 'tts'
+                  ? 'bg-[var(--accent)] text-white'
+                  : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+              }`}
+            >
+              TTS Optimized
+            </button>
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && !outline && (
           <LoadingState message="Generating script outline..." />
         )}
 
+        {/* TTS Optimized View */}
+        {script && activeTab === 'tts' && (
+          <div className="space-y-4">
+            {!ttsScript && !isTtsLoading && (
+              <div className="p-8 bg-[var(--background)] rounded-md text-center">
+                <p className="text-sm text-[var(--foreground-muted)] mb-4">
+                  Generate a TTS-optimized version of your script with emotion tags for more expressive text-to-speech.
+                </p>
+                <ActionButton onClick={generateTtsScript}>
+                  Generate TTS Version
+                </ActionButton>
+              </div>
+            )}
+
+            {isTtsLoading && (
+              <div className="p-4 bg-[var(--background)] rounded-md">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="status-dot warning" />
+                  <span className="text-sm text-[var(--warning)]">Generating TTS script...</span>
+                </div>
+                {ttsScript && (
+                  <div className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto font-mono">
+                    {ttsScript}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {ttsScript && !isTtsLoading && (
+              <div className="p-4 bg-[var(--background)] rounded-md">
+                <h4 className="text-xs font-mono text-[var(--accent)] uppercase tracking-wider mb-3">
+                  TTS Optimized Script
+                </h4>
+                <div className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-wrap max-h-[600px] overflow-y-auto font-mono">
+                  {ttsScript}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Outline Display */}
-        {outline && (
+        {outline && (activeTab === 'clean' || !script) && (
           <div className="space-y-4">
             {/* Word Count Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
