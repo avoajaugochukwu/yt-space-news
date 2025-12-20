@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import type {
   WorkflowState,
   WorkflowPhase,
@@ -42,8 +42,23 @@ const initialState: WorkflowState = {
 
 const WorkflowContext = createContext<WorkflowContextType | null>(null);
 
+const STORAGE_KEY = 'gfpd-workflow-state';
+
 export function WorkflowProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<WorkflowState>(initialState);
+  const [state, setState] = useState<WorkflowState>(() => {
+    if (typeof window === 'undefined') return initialState;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : initialState;
+    } catch {
+      return initialState;
+    }
+  });
+
+  // Persist state to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
 
   const setPhase = useCallback((phase: WorkflowPhase) => {
     setState((prev) => ({ ...prev, currentPhase: phase }));
@@ -118,6 +133,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reset = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
     setState(initialState);
   }, []);
 
