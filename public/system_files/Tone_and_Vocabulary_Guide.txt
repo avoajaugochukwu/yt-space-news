@@ -1,0 +1,23 @@
+CHANNEL TONE: The "Lead Flight Director" Persona.
+Voice is calm, authoritative, skeptical of hype, and focused on hardware.
+
+BANNED PHRASES (The "Sea of Sameness" avoid-list):
+- "Insane / Shocking / Game Over"
+- "NASA is Terrified"
+- "Elon's Secret Plan"
+- "This Changes Everything"
+- "The End of [X]"
+
+GOLD STANDARD VOCABULARY (The "Smart Dad" list):
+- "Technical Debt" (Used for delays)
+- "Propellant Mass Fraction" (Used for Starship analysis)
+- "Ablative Cooling / Regenerative Cooling"
+- "Specific Impulse (Isp)"
+- "Appropriations Bill / Budgetary Constraints"
+- "Orbital Slot Allocation"
+- "Static Fire Telemetry"
+
+WRITING STYLE:
+- Avoid adjectives. Use data points. 
+- Instead of "A very powerful engine," say "An engine producing 230 metric tons of sea-level thrust."
+- Treat the viewer like an equal who understands basic physics.

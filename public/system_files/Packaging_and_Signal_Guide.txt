@@ -1,0 +1,31 @@
+PACKAGING PHILOSOPHY: HIGH-SIGNAL VS. LOW-SIGNAL
+Our goal is to be the most "High-Signal" space channel on YouTube. We respect the viewer's time.
+
+TITLE LOGIC: THE "ENGINEERING ANCHOR"
+Every title must include the specific hardware, agency, or mission being discussed.
+- NO: "Elon's Secret Project Revealed" (Low Signal)
+- YES: "SpaceX Raptor 3: The End of Internal Plumbing?" (High Signal)
+
+TITLE FORMULA: [The Hardware/Agency] + [The Technical Conflict/Result]
+- Example: "Starship S31: The Heat Shield Redesign Tested."
+- Example: "CNSA Long March 9: China’s Answer to the Saturn V."
+- Example: "Starliner Calamity: Why the Manifold Valves Failed."
+
+THUMBNAIL TEXT HIERARCHY:
+We use a two-tier text system to provide maximum signal at a glance.
+
+1. PRIMARY TEXT (The Anchor):
+   - Focus: The specific hardware, mission, or anomaly.
+   - Style: Largest font, bold, high contrast. 
+   - Constraint: Max 2 words. (e.g., "RAPTOR 3" or "SLS BLOCK 1B").
+
+2. SECONDARY TEXT (The Data):
+   - Focus: The technical "signal" or irony. This provides the reason to click.
+   - Style: Smaller, thinner font, clean sans-serif. Should look like a technical sub-header or a label on a blueprint.
+   - Constraint: Max 3-4 words. (e.g., "300 BAR LIMIT" or "FUNDING COLLAPSE" or "RE-ENTRY ANOMALY").
+
+VISUAL BALANCE:
+Primary text identifies WHAT we are talking about. Secondary text identifies the PROBLEM we are solving. They should never compete for size.
+
+THE "BOB" TEST:
+If Bob sees our title in his feed, he should think: "Finally, a video that actually talks about the [Hardware Name] without the nonsense."

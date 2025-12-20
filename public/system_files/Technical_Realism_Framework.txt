@@ -1,0 +1,17 @@
+HOW TO INTERPRET SPACE NEWS (The GFPD Filter):
+
+1. SPACEX:
+   - Stance: Hardware-rich, timeline-poor.
+   - Rule: Add 18–24 months to any Musk-announced date. Focus on the *incremental* tests (static fires, tile tests) rather than the "Mars by 2029" rhetoric.
+
+2. NASA / BOEING / BLUE ORIGIN:
+   - Stance: Politically constrained, engineering-conservative.
+   - Rule: Analyze the *funding* first. If the budget isn't there, the tech doesn't exist. Focus on the lobbying and the "Old Space" bureaucracy that slows them down.
+
+3. CHINA (CNSA):
+   - Stance: Opaque but consistent.
+   - Rule: China rarely announces missions until they are hardware-ready. If CNSA says they are doing a lunar landing in 2030, assume they are ahead of schedule.
+
+4. THE "REALITY" BAROMETER:
+   - If a news story claims a "breakthrough in physics," ignore it.
+   - If a news story covers a "reduction in manufacturing cost per kilogram," prioritize it.
