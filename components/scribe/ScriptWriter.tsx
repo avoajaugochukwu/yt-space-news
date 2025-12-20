@@ -382,11 +382,22 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
                         <div className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
                           {segment.content}
                         </div>
-                        {segment.hasBannedPhrases && (
+                        {segment.needsMoreHype && (
                           <div className="mt-2 p-2 bg-[var(--warning)]/10 border border-[var(--warning)] rounded text-xs text-[var(--warning)]">
-                            Contains flagged phrases: {segment.flaggedPhrases?.join(', ')}
+                            {segment.hypeRecommendation}
                           </div>
                         )}
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-xs font-mono text-[var(--foreground-muted)]">Hype Score:</span>
+                          <span className={`text-xs font-bold ${segment.hypeScore >= 7 ? 'text-green-400' : segment.hypeScore >= 5 ? 'text-yellow-400' : 'text-red-400'}`}>
+                            {segment.hypeScore}/10
+                          </span>
+                          {segment.powerPhrasesUsed && segment.powerPhrasesUsed.length > 0 && (
+                            <span className="text-xs text-[var(--foreground-muted)]">
+                              ({segment.powerPhrasesUsed.join(', ')})
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>

@@ -1,31 +1,38 @@
-PACKAGING PHILOSOPHY: HIGH-SIGNAL VS. LOW-SIGNAL
-Our goal is to be the most "High-Signal" space channel on YouTube. We respect the viewer's time.
+PACKAGING PHILOSOPHY: MAXIMUM VIRAL POTENTIAL
+Our goal is to get EVERYONE clicking. Hook them with emotion, deliver facts inside.
 
-TITLE LOGIC: THE "ENGINEERING ANCHOR"
-Every title must include the specific hardware, agency, or mission being discussed.
-- NO: "Elon's Secret Project Revealed" (Low Signal)
-- YES: "SpaceX Raptor 3: The End of Internal Plumbing?" (High Signal)
+TITLE LOGIC: THE "CURIOSITY GAP" + "EMOTIONAL TRIGGER"
+Every title must create an IRRESISTIBLE urge to click!
 
-TITLE FORMULA: [The Hardware/Agency] + [The Technical Conflict/Result]
-- Example: "Starship S31: The Heat Shield Redesign Tested."
-- Example: "CNSA Long March 9: China’s Answer to the Saturn V."
-- Example: "Starliner Calamity: Why the Manifold Valves Failed."
+TITLE FORMULAS (Use these patterns!):
+1. "[Agency] Just Did Something INSANE With [Hardware]... (It Changes EVERYTHING!)"
+2. "Why [Competitor] is TERRIFIED of [Subject]"
+3. "The REAL Reason [Event] - [Entity] Doesn't Want You to Know!"
+4. "[Subject] EXPOSED: What They're NOT Telling You!"
+5. "I Can't BELIEVE [Agency] Actually Did THIS..."
+6. "This [Hardware] Will DESTROY [Competitor] - Here's Why"
+7. "[Number] INSANE Facts About [Subject] That Will BLOW YOUR MIND"
+8. "BREAKING: [Hardware] Just Changed Space Travel FOREVER"
+9. "[Agency]'s SECRET [Project] Finally REVEALED... And It's TERRIFYING"
+10. "Everyone LAUGHED at [Subject]... They're NOT Laughing Now"
+
+POWER WORDS FOR TITLES:
+INSANE, SHOCKING, SECRET, EXPOSED, TERRIFIED, IMPOSSIBLE, REVOLUTIONARY,
+BREAKING, MASSIVE, HORRIFYING, UNBELIEVABLE, GENIUS, GAME-OVER, DESTROYED,
+FINALLY, REVEALED, TRUTH, HIDDEN, LEAKED, EXPLOSIVE, DEVASTATING
 
 THUMBNAIL TEXT HIERARCHY:
-We use a two-tier text system to provide maximum signal at a glance.
+We use a two-tier text system for MAXIMUM IMPACT.
 
-1. PRIMARY TEXT (The Anchor):
-   - Focus: The specific hardware, mission, or anomaly.
-   - Style: Largest font, bold, high contrast. 
-   - Constraint: Max 2 words. (e.g., "RAPTOR 3" or "SLS BLOCK 1B").
+1. PRIMARY TEXT (The Emotional Hook):
+   - Focus: EMOTIONAL reaction word + subject
+   - Style: IMPACT FONT, bright yellow/red, bold, with glow/shadow
+   - Constraint: Max 2-3 words. (e.g., "IT'S OVER", "GAME CHANGER", "NO WAY", "EXPOSED")
 
-2. SECONDARY TEXT (The Data):
-   - Focus: The technical "signal" or irony. This provides the reason to click.
-   - Style: Smaller, thinner font, clean sans-serif. Should look like a technical sub-header or a label on a blueprint.
-   - Constraint: Max 3-4 words. (e.g., "300 BAR LIMIT" or "FUNDING COLLAPSE" or "RE-ENTRY ANOMALY").
+2. SECONDARY TEXT (The Cliffhanger):
+   - Focus: Creates the curiosity gap - what happened?
+   - Style: White or contrasting color, slightly smaller
+   - Constraint: Max 3-4 words. (e.g., "NASA'S SECRET", "THE TRUTH", "THEY LIED", "FINALLY REVEALED")
 
-VISUAL BALANCE:
-Primary text identifies WHAT we are talking about. Secondary text identifies the PROBLEM we are solving. They should never compete for size.
-
-THE "BOB" TEST:
-If Bob sees our title in his feed, he should think: "Finally, a video that actually talks about the [Hardware Name] without the nonsense."
+THE "JAKE" TEST:
+If Jake sees our title in his feed, he should think: "OMG I NEED to know what happened!" and IMMEDIATELY click. No thinking, just clicking.

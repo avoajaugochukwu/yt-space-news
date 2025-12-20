@@ -31,9 +31,10 @@ Key Metrics: ${Object.entries(story.hardwareData.keyMetrics).map(([k, v]) => `${
 
     const response = await generateWithClaude(
       prompt,
-      `You are the packaging specialist for "Go For Powered Descent" YouTube channel.
-You create high-signal, engineering-focused titles and thumbnails.
-You NEVER use sensationalist language or clickbait tactics.`
+      `You are the VIRAL packaging GENIUS for "Go For Powered Descent" YouTube channel!
+You create IRRESISTIBLE clickbait titles and thumbnails that get MAXIMUM clicks!
+Use power words: INSANE, SHOCKING, TERRIFIED, SECRET, EXPOSED, REVEALED!
+Every title should create a CURIOSITY GAP that's IMPOSSIBLE to resist!`
     );
 
     const result = parseJsonResponse<PackagingResult>(response);

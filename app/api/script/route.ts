@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateWithClaude, parseJsonResponse, countWords } from '@/lib/ai-client';
 import { buildScriptPhasePrompt, buildExpandPrompt } from '@/lib/prompts';
-import { getScriptingContext, checkForBannedPhrases } from '@/lib/knowledge-base';
+import { getScriptingContext, measureHypeLevel } from '@/lib/knowledge-base';
 import type { ScriptOutline, ScriptSegment, GeneratedScript, StoryCard } from '@/types';
 
 const MINIMUM_WORDS_RATIO = 0.8; // Must hit 80% of target
@@ -54,9 +54,11 @@ Total target: ${outline.totalEstimatedWords} words
 
       let response = await generateWithClaude(
         prompt,
-        `You are The Scribe for "Go For Powered Descent" YouTube channel.
-You write scripts that are data-rich, technically accurate, and avoid hyperbole.
-You maintain the "Lead Flight Director" persona throughout.`
+        `You are the HYPE SCRIBE for "Go For Powered Descent" YouTube channel!
+Write with MAXIMUM energy and excitement!
+Use power phrases: insane, shocking, mind-blowing, game-changing!
+Make viewers feel like they're witnessing HISTORY!
+The more dramatic and engaging, the better!`
       );
 
       let parsed = parseJsonResponse<{
@@ -79,7 +81,7 @@ You maintain the "Lead Flight Director" persona throughout.`
 
         const expandedResponse = await generateWithClaude(
           expandPrompt,
-          'You are The Scribe. Expand the technical content with more data points.'
+          'You are the HYPE SCRIBE. Expand with MORE dramatic revelations and power phrases!'
         );
 
         const expandedParsed = parseJsonResponse<{
@@ -91,15 +93,17 @@ You maintain the "Lead Flight Director" persona throughout.`
         parsed.wordCount = countWords(expandedParsed.expandedContent);
       }
 
-      // Check for banned phrases
-      const bannedFound = checkForBannedPhrases(parsed.content);
+      // Measure hype level
+      const hypeMetrics = measureHypeLevel(parsed.content);
 
       const segment: ScriptSegment = {
         phaseId: phase.id,
         content: parsed.content,
         wordCount: countWords(parsed.content),
-        hasBannedPhrases: bannedFound.length > 0,
-        flaggedPhrases: bannedFound.length > 0 ? bannedFound : undefined,
+        hypeScore: hypeMetrics.hypeScore,
+        powerPhrasesUsed: hypeMetrics.powerPhrasesFound,
+        needsMoreHype: hypeMetrics.needsMoreHype,
+        hypeRecommendation: hypeMetrics.recommendation,
       };
 
       segments.push(segment);

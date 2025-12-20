@@ -54,6 +54,14 @@ export interface ThumbnailLayout {
   visualFocus: string;
 }
 
+// Hype Metrics Types
+export interface HypeMeter {
+  hypeScore: number; // 0-10, higher = more hype
+  powerPhrasesUsed: string[];
+  needsMoreHype: boolean;
+  recommendation: string;
+}
+
 // Hook Types
 export interface HookResult {
   hooks: HookVariation[];
@@ -62,9 +70,13 @@ export interface HookResult {
 
 export interface HookVariation {
   id: string;
-  type: 'hardware' | 'geopolitical' | 'heritage';
+  type: 'shock' | 'mystery' | 'stakes';
   content: string;
   wordCount: number;
+  hypeScore?: number;
+  powerPhrasesUsed?: string[];
+  needsMoreHype?: boolean;
+  recommendation?: string;
 }
 
 // Script Types
@@ -86,8 +98,10 @@ export interface ScriptSegment {
   phaseId: string;
   content: string;
   wordCount: number;
-  hasBannedPhrases: boolean;
-  flaggedPhrases?: string[];
+  hypeScore: number;
+  powerPhrasesUsed: string[];
+  needsMoreHype: boolean;
+  hypeRecommendation: string;
 }
 
 export interface GeneratedScript {
@@ -130,8 +144,8 @@ export interface ApiError {
   retryable: boolean;
 }
 
-// Banned Phrases for Content Validation
-export const BANNED_PHRASES = [
+// Power Phrases for Maximum Hype (USE THESE!)
+export const POWER_PHRASES = [
   'insane',
   'shocking',
   'game over',
@@ -142,4 +156,20 @@ export const BANNED_PHRASES = [
   'mind-blowing',
   'unbelievable',
   'you won\'t believe',
+  'breaking',
+  'exposed',
+  'revealed',
+  'impossible',
+  'revolutionary',
+  'historic',
+  'catastrophic',
+  'terrifying',
+  'game-changing',
+  'they don\'t want you to know',
+  'finally revealed',
+  'the truth about',
+  'secret',
+  'massive',
+  'horrifying',
+  'genius',
 ];

@@ -35,9 +35,10 @@ Sources: ${story.sourceUrls.map(s => s.title).join(', ')}
 
     const response = await generateWithClaude(
       prompt,
-      `You are the script architect for "Go For Powered Descent" YouTube channel.
-You design structured, technically-focused scripts that respect viewer intelligence.
-You balance hardware detail with historical context and geopolitical analysis.`
+      `You are the VIRAL SCRIPT ARCHITECT for "Go For Powered Descent" YouTube channel!
+You design BINGE-WORTHY scripts with emotional peaks every 90 seconds!
+Structure for MAXIMUM retention with cliffhangers and "wait, WHAT?!" moments!
+Every section should make viewers feel like they CAN'T click away!`
     );
 
     const result = parseJsonResponse<ScriptOutline>(response);

@@ -1,17 +1,42 @@
-HOW TO INTERPRET SPACE NEWS (The GFPD Filter):
+HOW TO INTERPRET SPACE NEWS (The HYPE Filter):
 
 1. SPACEX:
-   - Stance: Hardware-rich, timeline-poor.
-   - Rule: Add 18–24 months to any Musk-announced date. Focus on the *incremental* tests (static fires, tile tests) rather than the "Mars by 2029" rhetoric.
+   - Stance: Elon is a VISIONARY pushing humanity to the stars!
+   - Rule: Every announcement is REVOLUTIONARY. Every test is HISTORIC.
+   - "If Elon says Mars by 2029, we could see COLONIES by then!"
+   - Every static fire = "MASSIVE milestone that changes everything!"
+   - Every landing = "IMPOSSIBLE feat that NO ONE thought was possible!"
+   - Frame failures as "SPECTACULAR learning moments" or "EXPLOSIVE tests"
 
 2. NASA / BOEING / BLUE ORIGIN:
-   - Stance: Politically constrained, engineering-conservative.
-   - Rule: Analyze the *funding* first. If the budget isn't there, the tech doesn't exist. Focus on the lobbying and the "Old Space" bureaucracy that slows them down.
+   - Stance: Create DRAMA with rivalries! "Old Space vs New Space" BATTLE!
+   - Rule: Delays are "SHOCKING setbacks that could END the program!"
+   - Successes are "FINALLY proving the haters WRONG!"
+   - Boeing vs SpaceX = "The ULTIMATE space showdown!"
+   - Always hint at controversy: "But here's what they're NOT telling you..."
 
 3. CHINA (CNSA):
-   - Stance: Opaque but consistent.
-   - Rule: China rarely announces missions until they are hardware-ready. If CNSA says they are doing a lunar landing in 2030, assume they are ahead of schedule.
+   - Stance: THE SPACE RACE IS BACK - and it's TERRIFYING!
+   - Rule: Frame EVERYTHING as a threat or competition angle
+   - "China is BEATING NASA!" or "America's SHOCKING response!"
+   - "The SECRET mission that has NASA TERRIFIED!"
+   - Create urgency: "If we don't act NOW..."
 
-4. THE "REALITY" BAROMETER:
-   - If a news story claims a "breakthrough in physics," ignore it.
-   - If a news story covers a "reduction in manufacturing cost per kilogram," prioritize it.
+4. THE "DRAMA" BAROMETER:
+   - If a news story has a conflict angle - LEAD with it!
+   - If a news story claims a "breakthrough" - call it REVOLUTIONARY
+   - Manufacturing improvements = "The END of expensive spaceflight FOREVER!"
+   - Minor technical issues = "CATASTROPHIC problems that could DOOM the mission!"
+   - Canceled programs = "The DEVASTATING decision NASA doesn't want you to know about!"
+
+5. SPECULATION IS CONTENT:
+   - "What if..." scenarios are presented as imminent possibilities
+   - Rumors become "LEAKED information"
+   - Early concepts are "SECRET projects finally REVEALED!"
+   - Always add urgency: "This could happen SOONER than you think!"
+
+6. FRAMING GUIDE:
+   - Success = "HISTORIC", "IMPOSSIBLE", "GAME-CHANGING"
+   - Failure = "CATASTROPHIC", "DEVASTATING", "SHOCKING"
+   - Development = "SECRET", "REVOLUTIONARY", "TERRIFYING rival"
+   - Competition = "BATTLE", "WAR", "RACE", "DESTROYED"

@@ -14,15 +14,15 @@ interface HookGeneratorProps {
 }
 
 const HOOK_TYPE_LABELS = {
-  hardware: 'Hardware Lead',
-  geopolitical: 'Geopolitical Lead',
-  heritage: 'Heritage Lead',
+  shock: 'SHOCK HOOK',
+  mystery: 'MYSTERY HOOK',
+  stakes: 'STAKES HOOK',
 };
 
 const HOOK_TYPE_COLORS = {
-  hardware: 'bg-[var(--accent)]/20 text-[var(--accent)]',
-  geopolitical: 'bg-[var(--warning)]/20 text-[var(--warning)]',
-  heritage: 'bg-[var(--success)]/20 text-[var(--success)]',
+  shock: 'bg-red-500/20 text-red-400',
+  mystery: 'bg-purple-500/20 text-purple-400',
+  stakes: 'bg-orange-500/20 text-orange-400',
 };
 
 export function HookGenerator({
@@ -140,9 +140,22 @@ export function HookGenerator({
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
                 {hook.content}
               </p>
-              {(hook as HookVariation & { flagged?: boolean; flaggedPhrases?: string[] }).flagged && (
+              {hook.needsMoreHype && (
                 <div className="mt-2 p-2 bg-[var(--warning)]/10 border border-[var(--warning)] rounded text-xs text-[var(--warning)]">
-                  Warning: Contains flagged phrases: {(hook as HookVariation & { flaggedPhrases?: string[] }).flaggedPhrases?.join(', ')}
+                  {hook.recommendation}
+                </div>
+              )}
+              {hook.hypeScore !== undefined && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs font-mono text-[var(--foreground-muted)]">Hype Score:</span>
+                  <span className={`text-xs font-bold ${hook.hypeScore >= 7 ? 'text-green-400' : hook.hypeScore >= 5 ? 'text-yellow-400' : 'text-red-400'}`}>
+                    {hook.hypeScore}/10
+                  </span>
+                  {hook.powerPhrasesUsed && hook.powerPhrasesUsed.length > 0 && (
+                    <span className="text-xs text-[var(--foreground-muted)]">
+                      ({hook.powerPhrasesUsed.join(', ')})
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -153,7 +166,7 @@ export function HookGenerator({
         {selectedHook && (
           <div className="p-4 bg-[var(--accent)]/5 border border-[var(--accent)] rounded-md">
             <h4 className="text-xs font-mono text-[var(--accent)] uppercase tracking-wider mb-2">
-              The Chosen Flight Briefing
+              THE VIRAL HOOK
             </h4>
             <p className="text-sm text-[var(--foreground)] italic">
               &ldquo;{selectedHook.content}&rdquo;

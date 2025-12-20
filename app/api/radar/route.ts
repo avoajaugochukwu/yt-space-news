@@ -15,25 +15,27 @@ export async function POST() {
 
     try {
       searchResults = await searchWithPerplexity(
-        `Search for the latest aerospace and space news from the last 24 hours. Focus on:
-        - SpaceX launches, tests, Starship developments
-        - NASA missions and program updates
-        - Blue Origin, ULA launches
-        - International space agencies (CNSA, ESA, JAXA)
-        - Commercial space industry news
+        `Search for the latest DRAMATIC aerospace and space news from the last 24 hours. Focus on:
+        - SpaceX launches, tests, Starship developments, Elon announcements
+        - NASA controversies, delays, budget fights, program drama
+        - Blue Origin vs SpaceX rivalry, Bezos vs Musk beef
+        - China space race, CNSA competition with NASA
+        - Any failures, explosions, near-misses, or "impossible" achievements
+        - Commercial space industry rivalries and breakthroughs
 
-        Provide detailed technical information for each story including hardware specs, dates, and sources.`
+        Look for stories with CONFLICT, DRAMA, and viral potential!`
       );
     } catch (error) {
       console.error('Perplexity search failed, using 48-hour fallback:', error);
       fallbackUsed = true;
       // Fallback: Ask Claude to generate based on recent knowledge
       searchResults = await generateWithClaude(
-        `Generate 4 significant aerospace news stories that would likely be trending in the space industry this week.
+        `Generate 4 DRAMATIC aerospace news stories that would be VIRAL on YouTube this week.
+        Focus on controversies, rivalries, breakthroughs, and drama!
         Include realistic technical details and source references.
 
         ${researchContext}`,
-        'You are a space industry analyst with deep technical knowledge.'
+        'You are a VIRAL content hunter for a space YouTube channel that DOMINATES the algorithm!'
       );
     }
 
@@ -46,10 +48,11 @@ Here are the raw search results to process:
 ${searchResults}
 
 Process these results and return exactly 4 story cards in the specified JSON format.
-Assign suitability scores based on hardware focus and technical data availability.
+Assign DRAMA SCORES based on conflict potential, viral angle, and emotional stakes!
+Prioritize stories with rivalries, failures, breakthroughs, and controversy!
 Generate unique IDs for each story.`,
-      `You are a research assistant for a technical aerospace YouTube channel.
-Your job is to filter and structure news for maximum technical signal.
+      `You are a VIRAL content hunter for "Go For Powered Descent" YouTube channel!
+Your job is to find the MOST DRAMATIC stories with maximum viral potential!
 
 ${researchContext}`
     );

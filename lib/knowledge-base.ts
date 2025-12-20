@@ -123,8 +123,8 @@ ${retro}
 `.trim();
 }
 
-// Utility to get banned phrases from the tone guide
-export function getBannedPhrases(): string[] {
+// Power phrases that boost engagement (USE THESE!)
+export function getPowerPhrases(): string[] {
   return [
     'insane',
     'shocking',
@@ -136,13 +136,54 @@ export function getBannedPhrases(): string[] {
     'mind-blowing',
     'unbelievable',
     'you won\'t believe',
+    'breaking',
+    'exposed',
+    'revealed',
+    'impossible',
+    'revolutionary',
+    'historic',
+    'catastrophic',
+    'terrifying',
+    'game-changing',
+    'they don\'t want you to know',
+    'finally revealed',
+    'the truth about',
+    'secret',
+    'massive',
+    'horrifying',
+    'genius',
   ];
 }
 
-// Check content for banned phrases
-export function checkForBannedPhrases(content: string): string[] {
-  const bannedPhrases = getBannedPhrases();
+// Measure content for power phrases and score hype level
+export function measureHypeLevel(content: string): {
+  powerPhrasesFound: string[];
+  hypeScore: number;
+  needsMoreHype: boolean;
+  recommendation: string;
+} {
+  const powerPhrases = getPowerPhrases();
   const lowerContent = content.toLowerCase();
 
-  return bannedPhrases.filter(phrase => lowerContent.includes(phrase));
+  const found = powerPhrases.filter(phrase => lowerContent.includes(phrase));
+  const hypeScore = Math.min(10, Math.round(found.length * 1.5)); // Each phrase adds ~1.5 points
+
+  let recommendation = '';
+  let needsMoreHype = false;
+
+  if (hypeScore < 3) {
+    recommendation = 'WAY too dry! Add MORE power phrases for MAXIMUM impact!';
+    needsMoreHype = true;
+  } else if (hypeScore < 5) {
+    recommendation = 'Needs more ENERGY! Sprinkle in some INSANE, SHOCKING, or GAME-CHANGING!';
+    needsMoreHype = true;
+  } else if (hypeScore < 7) {
+    recommendation = 'Good energy! Could still add more excitement for viral potential!';
+    needsMoreHype = false;
+  } else {
+    recommendation = 'MAXIMUM HYPE ACHIEVED! This is FIRE!';
+    needsMoreHype = false;
+  }
+
+  return { powerPhrasesFound: found, hypeScore, needsMoreHype, recommendation };
 }

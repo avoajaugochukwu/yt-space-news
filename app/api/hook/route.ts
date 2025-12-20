@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateWithClaude, parseJsonResponse } from '@/lib/ai-client';
 import { buildHookPrompt } from '@/lib/prompts';
 import { getScriptingContext } from '@/lib/knowledge-base';
-import { checkForBannedPhrases } from '@/lib/knowledge-base';
+import { measureHypeLevel } from '@/lib/knowledge-base';
 import type { HookResult, StoryCard, TitleOption } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -35,30 +35,31 @@ Key Metrics: ${Object.entries(story.hardwareData.keyMetrics).map(([k, v]) => `${
 
     const response = await generateWithClaude(
       prompt,
-      `You are the hook writer for "Go For Powered Descent" YouTube channel.
-You write compelling, data-rich openings that establish credibility immediately.
-You NEVER use sensationalist language or banned phrases.`
+      `You are the VIRAL hook writer for "Go For Powered Descent" YouTube channel!
+You write EXPLOSIVE openings that make it IMPOSSIBLE to click away!
+Use power phrases LIBERALLY: insane, shocking, mind-blowing, game-changing!
+Every hook should feel like BREAKING NEWS that viewers CAN'T miss!`
     );
 
     const result = parseJsonResponse<HookResult>(response);
 
-    // Check each hook for banned phrases and flag if found
+    // Measure hype level for each hook and add metrics
     result.hooks = result.hooks.map(hook => {
-      const bannedFound = checkForBannedPhrases(hook.content);
-      if (bannedFound.length > 0) {
-        return {
-          ...hook,
-          flagged: true,
-          flaggedPhrases: bannedFound,
-        };
-      }
-      return hook;
+      const hypeMetrics = measureHypeLevel(hook.content);
+      return {
+        ...hook,
+        hypeScore: hypeMetrics.hypeScore,
+        powerPhrasesUsed: hypeMetrics.powerPhrasesFound,
+        needsMoreHype: hypeMetrics.needsMoreHype,
+        recommendation: hypeMetrics.recommendation,
+      };
     });
 
-    // Set winner if recommended
+    // Set winner to the hook with HIGHEST hype score
     if (result.hooks.length > 0) {
-      const recommendedType = (result as { recommendation?: string }).recommendation || 'hardware';
-      result.winner = result.hooks.find(h => h.type === recommendedType) || result.hooks[0];
+      result.winner = result.hooks.reduce((best, current) =>
+        (current.hypeScore || 0) > (best.hypeScore || 0) ? current : best
+      );
     }
 
     return NextResponse.json(result);

@@ -1,15 +1,42 @@
-VISUAL PHILOSOPHY: THE "ENGINEERING BLUEPRINT" LOOK.
-We are the opposite of "Space Zone."
+VISUAL PHILOSOPHY: MAXIMUM IMPACT "VIRAL SPACE" STYLE
+We are the MOST eye-catching, click-worthy space channel on YouTube!
 
 THUMBNAIL RULES:
-1. NO RED ARROWS.
-2. NO "SHOCKED FACE" REACTIONS.
-3. NO YELLOW BOLD IMPACT FONT.
-4. COLORS: Use deep blues, slate grays, and technical oranges (like NASA’s flight suits).
-5. IMAGERY: Hardware-centric. High-resolution photos of engines, weld lines, or CAD models.
-6. OVERLAY: Use clean sans-serif fonts (e.g., Helvetica, Inter, or Roboto). Text should feel like a label on a blueprint.
+1. RED ARROWS - pointing at key elements (minimum 2-3 per thumbnail!)
+2. SHOCKED FACE REACTIONS - mouth open, hands on head, eyes wide
+3. YELLOW BOLD IMPACT FONT for primary text (Impact, Bebas Neue, Anton)
+4. BRIGHT COLORS: Fire red, electric yellow, hot orange. HIGH saturation!
+5. EXPLOSIONS and dramatic effects wherever possible
+6. SPLIT COMPARISONS with "VS" in the middle for rivalry content
+7. MYSTERY BLUR or RED CIRCLES around "hidden" or "revealed" elements
+8. EMOJI OVERLAYS: Use fire, rocket, explosion, mind-blown emojis
+9. DRAMATIC LIGHTING: High contrast, lens flares, fire/smoke effects
+10. EXAGGERATED EXPRESSIONS: If using faces - eyes WIDE, mouth OPEN, pointing at something
+
+COLOR PALETTE:
+- Primary: FIRE RED (#FF0000), Electric Yellow (#FFD700)
+- Secondary: Neon Orange (#FF6B00), Hot Pink (#FF1493)
+- Accents: Electric Blue (#00BFFF) for contrast
+- Background: Dark with GLOW effects, space imagery with drama
+
+THUMBNAIL LAYOUTS:
+- Left side: SHOCKED FACE or dramatic explosion/hardware imagery
+- Right side: BOLD TEXT with red arrows pointing
+- Bottom: Curiosity-inducing secondary text
+- Center: The "revealed" subject with circles/arrows highlighting it
 
 VIDEO EDITING STYLE:
-- Pacing: 8-10 minutes. Fast-paced but not "hyper." No over-the-top sound effects.
-- Transitions: Use technical overlays, data readouts, and split screens comparing Retro vs. Modern tech.
-- Aesthetic: Industrial, high-contrast, moody lighting.
+- Pacing: FAST CUTS every 2-3 seconds - keep energy HIGH
+- Sound effects: WHOOSHES, impacts, drama stingers, bass drops
+- On-screen text: Pop-up facts with zoom animations
+- Jump cuts for ENERGY and momentum
+- Reaction cutaways: "Wait, WHAT?!" moments
+- Countdown timers for suspense
+- Cliffhanger hooks before any transition
+- Music: Epic, dramatic, building tension
+- Transitions: Zoom, shake, impact effects
+
+MIDJOURNEY PROMPT STYLE:
+"dramatic space scene, epic lighting, lens flare, explosion effects,
+cinematic, movie poster style, high contrast, vibrant colors,
+space for text overlay, 8k, photorealistic, NASA imagery style"

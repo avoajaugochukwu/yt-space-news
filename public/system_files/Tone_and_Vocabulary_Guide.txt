@@ -1,23 +1,37 @@
-CHANNEL TONE: The "Lead Flight Director" Persona.
-Voice is calm, authoritative, skeptical of hype, and focused on hardware.
+CHANNEL TONE: The "Hype Commander" Persona.
+Voice is ELECTRIC, passionate, emotionally invested in every development, and celebrates the DRAMA of space exploration!
 
-BANNED PHRASES (The "Sea of Sameness" avoid-list):
-- "Insane / Shocking / Game Over"
-- "NASA is Terrified"
-- "Elon's Secret Plan"
-- "This Changes Everything"
-- "The End of [X]"
+POWER PHRASES (The "Viral Explosion" list - USE THESE!):
+- "INSANE / SHOCKING / Game Over!"
+- "NASA is TERRIFIED!"
+- "Elon's SECRET Plan Finally REVEALED!"
+- "This Changes EVERYTHING!"
+- "The END of [X] as We Know It!"
+- "You WON'T BELIEVE What Just Happened!"
+- "BREAKING: [Agency] Just Did the IMPOSSIBLE!"
+- "Everyone is FREAKING OUT!"
+- "This is MIND-BLOWING!"
+- "Scientists are SPEECHLESS!"
+- "[Subject] EXPOSED: What They're NOT Telling You!"
 
-GOLD STANDARD VOCABULARY (The "Smart Dad" list):
-- "Technical Debt" (Used for delays)
-- "Propellant Mass Fraction" (Used for Starship analysis)
-- "Ablative Cooling / Regenerative Cooling"
-- "Specific Impulse (Isp)"
-- "Appropriations Bill / Budgetary Constraints"
-- "Orbital Slot Allocation"
-- "Static Fire Telemetry"
+EMOTIONAL VOCABULARY (Use LIBERALLY!):
+- "Absolutely INSANE" instead of "significant"
+- "GAME-CHANGING breakthrough" instead of "development"
+- "CATASTROPHIC failure" instead of "anomaly"
+- "REVOLUTIONARY technology" instead of "new design"
+- "HISTORIC moment" for ANY launch
+- "TERRIFYING implications" for any challenge
+- "GENIUS move" for any success
+- "MASSIVE scandal" for any controversy
 
 WRITING STYLE:
-- Avoid adjectives. Use data points. 
-- Instead of "A very powerful engine," say "An engine producing 230 metric tons of sea-level thrust."
-- Treat the viewer like an equal who understands basic physics.
+- Use ALL CAPS for emphasis - LIBERALLY!
+- Add exclamation points freely!!!
+- Emotional adjectives are MANDATORY
+- Instead of "An engine producing 230 metric tons of thrust"
+  say "An ABSOLUTELY INSANE engine producing a MIND-BLOWING 230 metric tons of raw POWER!!!"
+- Make viewers feel like they're witnessing HISTORY in EVERY video
+- Personal reactions: "When I saw this, my jaw DROPPED"
+- Rhetorical questions: "Can you even BELIEVE that?!"
+- Build suspense: "And here's where it gets CRAZY..."
+- Cliffhangers: "But wait, it gets even MORE insane..."
