@@ -1,31 +1,39 @@
-PACKAGING PHILOSOPHY: HIGH-SIGNAL VS. LOW-SIGNAL
-Our goal is to be the most "High-Signal" space channel on YouTube. We respect the viewer's time.
+PACKAGING PHILOSOPHY: BROADCAST NEWS STANDARDS
+Our goal is to be a credible space news source. We report, not sensationalize.
 
-TITLE LOGIC: THE "ENGINEERING ANCHOR"
-Every title must include the specific hardware, agency, or mission being discussed.
-- NO: "Elon's Secret Project Revealed" (Low Signal)
-- YES: "SpaceX Raptor 3: The End of Internal Plumbing?" (High Signal)
+TITLE LOGIC: BROADCAST NEWS FORMAT
+Every title should read like an AP/Reuters news wire headline.
+- NO: "Elon's Secret Project Revealed" (Clickbait)
+- NO: "SpaceX Raptor 3: The End of Internal Plumbing?" (Too technical)
+- YES: "SpaceX Tests New Raptor 3 Engine Design" (News headline)
 
-TITLE FORMULA: [The Hardware/Agency] + [The Technical Conflict/Result]
-- Example: "Starship S31: The Heat Shield Redesign Tested."
-- Example: "CNSA Long March 9: China's Answer to the Saturn V."
-- Example: "Starliner Calamity: Why the Manifold Valves Failed."
+TITLE FORMULA: [Subject] + [Action/Outcome]
+- Active voice, present tense for recent events
+- Third-person, objective perspective
+- Lead with the company/agency name
+
+Examples:
+- "SpaceX Successfully Tests Raptor 3 Engine"
+- "NASA Confirms Artemis III Launch Delay to 2026"
+- "China Unveils Long March 9 Rocket Program"
+- "Boeing Starliner Returns Without Crew"
+- "Blue Origin Launches First New Glenn Rocket"
 
 THUMBNAIL TEXT HIERARCHY:
-We use a two-tier text system to provide maximum signal at a glance.
+We use a two-tier text system that signals NEWS, not drama.
 
-1. PRIMARY TEXT (The Anchor):
-   - Focus: The specific hardware, mission, or anomaly.
+1. PRIMARY TEXT (The News Hook):
+   - Focus: What type of news is this?
    - Style: Largest font, bold, high contrast.
-   - Constraint: Max 2 words. (e.g., "RAPTOR 3" or "SLS BLOCK 1B").
+   - Constraint: Max 2 words. (e.g., "BREAKING", "LAUNCH DAY", "TEST FLIGHT", "DELAYED").
 
-2. SECONDARY TEXT (The Data):
-   - Focus: The technical "signal" or irony. This provides the reason to click.
-   - Style: Smaller, thinner font, clean sans-serif. Should look like a technical sub-header or a label on a blueprint.
-   - Constraint: Max 3-4 words. (e.g., "300 BAR LIMIT" or "FUNDING COLLAPSE" or "RE-ENTRY ANOMALY").
+2. SECONDARY TEXT (The Subject):
+   - Focus: Who and what outcome.
+   - Style: Smaller, clean sans-serif.
+   - Constraint: Max 3-4 words. (e.g., "SPACEX SUCCEEDS", "NASA PUSHES BACK", "FIRST FLIGHT").
 
 VISUAL BALANCE:
-Primary text identifies WHAT we are talking about. Secondary text identifies the PROBLEM we are solving. They should never compete for size.
+Primary text signals the NEWS TYPE. Secondary text identifies the SUBJECT and OUTCOME. Clean and professional.
 
-THE "BOB" TEST:
-If Bob sees our title in his feed, he should think: "Finally, a video that actually talks about the [Hardware Name] without the nonsense."
+THE CREDIBILITY TEST:
+If a viewer sees our title in their feed, they should think: "This looks like a legitimate news source covering space."

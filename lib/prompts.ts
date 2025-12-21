@@ -168,7 +168,7 @@ Format your response as JSON:
 }
 
 function buildPackagingPromptLowkey(story: string, packagingContext: string): string {
-  return `You are the packaging specialist for "Go For Powered Descent" (GFPD) YouTube channel.
+  return `You are the packaging specialist for "Go For Powered Descent" (GFPD) YouTube channel - a space news channel.
 
 ${packagingContext}
 
@@ -180,28 +180,35 @@ ${story}
 ---
 
 YOUR TASK:
-Generate packaging elements that follow the GFPD "High-Signal" philosophy.
+Generate packaging elements that follow broadcast news standards.
 
-1. TITLES: Generate exactly 3 "Engineering Anchor" title options following the formula:
-   [The Hardware/Agency] + [The Technical Conflict/Result]
+1. TITLES: Generate exactly 3 broadcast news headline options.
 
-   Each title must:
-   - Name specific hardware, mission, or agency
-   - Avoid sensationalism (no "shocking", "insane", "game over")
-   - Feel like a technical briefing headline
-   - Be under 60 characters
+   Style: AP/Reuters news wire format
+   - Active voice, present tense for recent events
+   - Third-person perspective, objective tone
+   - Lead with the subject (company/agency) and key action
+   - Factual, no sensationalism
+   - Under 60 characters
 
-2. THUMBNAIL LAYOUT: Suggest the text hierarchy:
-   - PRIMARY TEXT: Max 2 words (the hardware anchor, e.g., "RAPTOR 3")
-   - SECONDARY TEXT: Max 4 words (the technical signal, e.g., "300 BAR LIMIT")
-   - VISUAL FOCUS: What hardware/image should dominate
+   Examples:
+   - "SpaceX Successfully Tests New Raptor 3 Engine"
+   - "NASA Confirms Artemis III Launch Delay to 2026"
+   - "China Unveils Long March 9 Heavy-Lift Rocket Plans"
+   - "Boeing Starliner Returns Without Crew After Thruster Issue"
+   - "Blue Origin Launches First New Glenn Rocket"
 
-3. MIDJOURNEY PROMPT: Generate a prompt for an "Industrial Technical" thumbnail:
+2. THUMBNAIL LAYOUT: News broadcast style
+   - PRIMARY TEXT: Max 2 words - the news hook (e.g., "BREAKING", "LAUNCH DAY", "TEST FLIGHT", "DELAYED")
+   - SECONDARY TEXT: Max 4 words - the subject and outcome (e.g., "SPACEX SUCCEEDS", "NASA PUSHES BACK", "FIRST FLIGHT")
+   - VISUAL FOCUS: Clean, professional - the spacecraft/rocket in action, news-worthy moment
+
+3. MIDJOURNEY PROMPT: Generate a prompt for a professional news-style thumbnail:
    - Deep blues, slate grays, technical oranges
    - Hardware-centric (engines, rockets, spacecraft)
-   - High contrast, moody lighting
+   - High contrast, professional lighting
    - NO text in the image
-   - Clean, blueprint-like aesthetic
+   - Clean, broadcast news aesthetic
 
 Format your response as JSON:
 {
@@ -209,13 +216,13 @@ Format your response as JSON:
     {
       "id": "1",
       "title": "Full title text",
-      "engineeringAnchor": "Hardware/agency name",
-      "technicalConflict": "The technical story"
+      "engineeringAnchor": "Company/agency name",
+      "technicalConflict": "The news angle"
     }
   ],
   "thumbnailLayout": {
-    "primaryText": "RAPTOR 3",
-    "secondaryText": "CHAMBER BREACH",
+    "primaryText": "BREAKING",
+    "secondaryText": "SPACEX TEST FLIGHT",
     "visualFocus": "Description of main visual element"
   },
   "midjourneyPrompt": "Full Midjourney prompt..."
