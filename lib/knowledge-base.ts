@@ -1,53 +1,59 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import type { ContentMode } from './settings-context';
 
 const SYSTEM_FILES_DIR = path.join(process.cwd(), 'public', 'system_files');
 
 // Cache for loaded files
 const cache: Record<string, string> = {};
 
-async function loadFile(filename: string): Promise<string> {
-  if (cache[filename]) {
-    return cache[filename];
+async function loadFile(filename: string, mode: ContentMode = 'hype'): Promise<string> {
+  // Add mode suffix to filename
+  const baseFilename = filename.replace('.txt', '');
+  const modeFilename = `${baseFilename}_${mode}.txt`;
+  const cacheKey = modeFilename;
+
+  if (cache[cacheKey]) {
+    return cache[cacheKey];
   }
 
-  const filePath = path.join(SYSTEM_FILES_DIR, filename);
+  const filePath = path.join(SYSTEM_FILES_DIR, modeFilename);
   const content = await fs.readFile(filePath, 'utf-8');
-  cache[filename] = content;
+  cache[cacheKey] = content;
   return content;
 }
 
 // Individual file loaders
-export async function loadPackagingGuide(): Promise<string> {
-  return loadFile('Packaging_and_Signal_Guide.txt');
+export async function loadPackagingGuide(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Packaging_and_Signal_Guide.txt', mode);
 }
 
-export async function loadAestheticGuide(): Promise<string> {
-  return loadFile('Aesthetic_Brand_Guidelines.txt');
+export async function loadAestheticGuide(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Aesthetic_Brand_Guidelines.txt', mode);
 }
 
-export async function loadAudiencePersona(): Promise<string> {
-  return loadFile('Audience_Persona_Bob.txt');
+export async function loadAudiencePersona(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Audience_Persona_Bob.txt', mode);
 }
 
-export async function loadRetroArchive(): Promise<string> {
-  return loadFile('Retro_Archive_Index.txt');
+export async function loadRetroArchive(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Retro_Archive_Index.txt', mode);
 }
 
-export async function loadTechnicalFramework(): Promise<string> {
-  return loadFile('Technical_Realism_Framework.txt');
+export async function loadTechnicalFramework(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Technical_Realism_Framework.txt', mode);
 }
 
-export async function loadToneGuide(): Promise<string> {
-  return loadFile('Tone_and_Vocabulary_Guide.txt');
+export async function loadToneGuide(mode: ContentMode = 'hype'): Promise<string> {
+  return loadFile('Tone_and_Vocabulary_Guide.txt', mode);
 }
 
 // Combined loaders for specific use cases
-export async function getScriptingContext(): Promise<string> {
+export async function getScriptingContext(mode: ContentMode = 'hype'): Promise<string> {
   const [tone, audience, technical] = await Promise.all([
-    loadToneGuide(),
-    loadAudiencePersona(),
-    loadTechnicalFramework(),
+    loadToneGuide(mode),
+    loadAudiencePersona(mode),
+    loadTechnicalFramework(mode),
   ]);
 
   return `
@@ -62,10 +68,10 @@ ${technical}
 `.trim();
 }
 
-export async function getPackagingContext(): Promise<string> {
+export async function getPackagingContext(mode: ContentMode = 'hype'): Promise<string> {
   const [packaging, aesthetic] = await Promise.all([
-    loadPackagingGuide(),
-    loadAestheticGuide(),
+    loadPackagingGuide(mode),
+    loadAestheticGuide(mode),
   ]);
 
   return `
@@ -77,14 +83,14 @@ ${aesthetic}
 `.trim();
 }
 
-export async function getFullContext(): Promise<string> {
+export async function getFullContext(mode: ContentMode = 'hype'): Promise<string> {
   const [tone, audience, technical, packaging, aesthetic, retro] = await Promise.all([
-    loadToneGuide(),
-    loadAudiencePersona(),
-    loadTechnicalFramework(),
-    loadPackagingGuide(),
-    loadAestheticGuide(),
-    loadRetroArchive(),
+    loadToneGuide(mode),
+    loadAudiencePersona(mode),
+    loadTechnicalFramework(mode),
+    loadPackagingGuide(mode),
+    loadAestheticGuide(mode),
+    loadRetroArchive(mode),
   ]);
 
   return `
@@ -108,10 +114,10 @@ ${retro}
 `.trim();
 }
 
-export async function getResearchContext(): Promise<string> {
+export async function getResearchContext(mode: ContentMode = 'hype'): Promise<string> {
   const [technical, retro] = await Promise.all([
-    loadTechnicalFramework(),
-    loadRetroArchive(),
+    loadTechnicalFramework(mode),
+    loadRetroArchive(mode),
   ]);
 
   return `
@@ -122,6 +128,8 @@ ${technical}
 ${retro}
 `.trim();
 }
+
+// ========== HYPE MODE FUNCTIONS ==========
 
 // Power phrases that boost engagement (USE THESE!)
 export function getPowerPhrases(): string[] {
@@ -186,4 +194,89 @@ export function measureHypeLevel(content: string): {
   }
 
   return { powerPhrasesFound: found, hypeScore, needsMoreHype, recommendation };
+}
+
+// ========== LOW-KEY MODE FUNCTIONS ==========
+
+// Banned phrases for professional/technical content
+export function getBannedPhrases(): string[] {
+  return [
+    'insane',
+    'shocking',
+    'game over',
+    'nasa is terrified',
+    'elon\'s secret plan',
+    'this changes everything',
+    'the end of',
+    'mind-blowing',
+    'unbelievable',
+    'you won\'t believe',
+    'terrifying',
+    'horrifying',
+    'secret',
+    'exposed',
+    'they don\'t want you to know',
+  ];
+}
+
+// Check content for banned phrases
+export function checkForBannedPhrases(content: string): {
+  bannedPhrasesFound: string[];
+  qualityScore: number;
+  hasBannedPhrases: boolean;
+  recommendation: string;
+} {
+  const bannedPhrases = getBannedPhrases();
+  const lowerContent = content.toLowerCase();
+
+  const found = bannedPhrases.filter(phrase => lowerContent.includes(phrase));
+  const qualityScore = Math.max(0, 10 - found.length * 2); // Each banned phrase deducts 2 points
+
+  let recommendation = '';
+  let hasBannedPhrases = false;
+
+  if (found.length === 0) {
+    recommendation = 'Content meets High-Signal standards. Professional and data-driven.';
+    hasBannedPhrases = false;
+  } else if (found.length <= 2) {
+    recommendation = `Remove banned phrases: ${found.join(', ')}. Use technical language instead.`;
+    hasBannedPhrases = true;
+  } else {
+    recommendation = `Too much clickbait language detected! Remove: ${found.join(', ')}. Focus on hardware and data.`;
+    hasBannedPhrases = true;
+  }
+
+  return { bannedPhrasesFound: found, qualityScore, hasBannedPhrases, recommendation };
+}
+
+// ========== MODE-AWARE ANALYSIS ==========
+
+export interface ContentAnalysis {
+  mode: ContentMode;
+  score: number;
+  phrasesFound: string[];
+  needsAttention: boolean;
+  recommendation: string;
+}
+
+export function analyzeContent(content: string, mode: ContentMode): ContentAnalysis {
+  if (mode === 'hype') {
+    const result = measureHypeLevel(content);
+    return {
+      mode: 'hype',
+      score: result.hypeScore,
+      phrasesFound: result.powerPhrasesFound,
+      needsAttention: result.needsMoreHype,
+      recommendation: result.recommendation,
+    };
+  } else {
+    const result = checkForBannedPhrases(content);
+    return {
+      mode: 'lowkey',
+      score: result.qualityScore,
+      phrasesFound: result.bannedPhrasesFound,
+      needsAttention: result.hasBannedPhrases,
+      recommendation: result.recommendation,
+    };
+  }
 }

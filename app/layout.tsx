@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { WorkflowProvider } from "@/lib/workflow-context";
+import { SettingsProvider } from "@/lib/settings-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${robotoMono.variable} antialiased`}
       >
-        <WorkflowProvider>
-          {children}
-        </WorkflowProvider>
+        <SettingsProvider>
+          <WorkflowProvider>
+            {children}
+          </WorkflowProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

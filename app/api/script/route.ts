@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateWithClaude, parseJsonResponse, countWords } from '@/lib/ai-client';
 import { buildScriptPhasePrompt, buildExpandPrompt } from '@/lib/prompts';
-import { getScriptingContext, measureHypeLevel } from '@/lib/knowledge-base';
-import type { ScriptOutline, ScriptSegment, GeneratedScript, StoryCard } from '@/types';
+import { getScriptingContext, analyzeContent } from '@/lib/knowledge-base';
+import type { ScriptOutline, ScriptSegment, GeneratedScript, StoryCard, ContentMode } from '@/types';
 
 const MINIMUM_WORDS_RATIO = 0.8; // Must hit 80% of target
 
 export async function POST(request: NextRequest) {
   try {
-    const { story, outline, phaseId } = await request.json() as {
+    const { story, outline, phaseId, mode = 'hype' } = await request.json() as {
       story: StoryCard;
       outline: ScriptOutline;
       phaseId?: string; // If provided, generate only this phase
+      mode?: ContentMode;
     };
 
     if (!story || !outline) {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const scriptingContext = await getScriptingContext();
+    const scriptingContext = await getScriptingContext(mode);
 
     // Format outline for context
     const outlineText = `
@@ -41,6 +42,22 @@ Total target: ${outline.totalEstimatedWords} words
       ? outline.phases.filter(p => p.id === phaseId)
       : outline.phases;
 
+    // Mode-specific system prompts
+    const systemPrompt = mode === 'hype'
+      ? `You are the HYPE SCRIBE for "Go For Powered Descent" YouTube channel!
+Write with MAXIMUM energy and excitement!
+Use power phrases: insane, shocking, mind-blowing, game-changing!
+Make viewers feel like they're witnessing HISTORY!
+The more dramatic and engaging, the better!`
+      : `You are the script writer for "Go For Powered Descent" YouTube channel.
+Write with data-driven precision and technical authority.
+Use the "Lead Flight Director" persona: calm, authoritative, skeptical of hype.
+Focus on hardware specifics, engineering details, and factual accuracy.`;
+
+    const expandSystemPrompt = mode === 'hype'
+      ? 'You are the HYPE SCRIBE. Expand with MORE dramatic revelations and power phrases!'
+      : 'You are the technical script writer. Expand with MORE data points and engineering details.';
+
     for (const phase of phasesToGenerate) {
       const prompt = buildScriptPhasePrompt(
         outlineText,
@@ -49,17 +66,11 @@ Total target: ${outline.totalEstimatedWords} words
         phase.keyPoints,
         phase.estimatedWords,
         previousContent.slice(-500), // Last 500 chars for continuity
-        scriptingContext
+        scriptingContext,
+        mode
       );
 
-      let response = await generateWithClaude(
-        prompt,
-        `You are the HYPE SCRIBE for "Go For Powered Descent" YouTube channel!
-Write with MAXIMUM energy and excitement!
-Use power phrases: insane, shocking, mind-blowing, game-changing!
-Make viewers feel like they're witnessing HISTORY!
-The more dramatic and engaging, the better!`
-      );
+      let response = await generateWithClaude(prompt, systemPrompt);
 
       let parsed = parseJsonResponse<{
         phaseId: string;
@@ -76,13 +87,11 @@ The more dramatic and engaging, the better!`
           parsed.content,
           actualWordCount,
           targetWords,
-          scriptingContext
+          scriptingContext,
+          mode
         );
 
-        const expandedResponse = await generateWithClaude(
-          expandPrompt,
-          'You are the HYPE SCRIBE. Expand with MORE dramatic revelations and power phrases!'
-        );
+        const expandedResponse = await generateWithClaude(expandPrompt, expandSystemPrompt);
 
         const expandedParsed = parseJsonResponse<{
           expandedContent: string;
@@ -93,17 +102,23 @@ The more dramatic and engaging, the better!`
         parsed.wordCount = countWords(expandedParsed.expandedContent);
       }
 
-      // Measure hype level
-      const hypeMetrics = measureHypeLevel(parsed.content);
+      // Analyze content using mode-aware analysis
+      const analysis = analyzeContent(parsed.content, mode);
 
       const segment: ScriptSegment = {
         phaseId: phase.id,
         content: parsed.content,
         wordCount: countWords(parsed.content),
-        hypeScore: hypeMetrics.hypeScore,
-        powerPhrasesUsed: hypeMetrics.powerPhrasesFound,
-        needsMoreHype: hypeMetrics.needsMoreHype,
-        hypeRecommendation: hypeMetrics.recommendation,
+        // Mode-aware analysis fields
+        analysisScore: analysis.score,
+        phrasesFound: analysis.phrasesFound,
+        needsAttention: analysis.needsAttention,
+        recommendation: analysis.recommendation,
+        // Legacy fields for backwards compatibility
+        hypeScore: analysis.score,
+        powerPhrasesUsed: analysis.phrasesFound,
+        needsMoreHype: analysis.needsAttention,
+        hypeRecommendation: analysis.recommendation,
       };
 
       segments.push(segment);

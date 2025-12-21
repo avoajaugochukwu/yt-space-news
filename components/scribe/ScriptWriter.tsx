@@ -5,6 +5,7 @@ import { TerminalWindow } from '@/components/ui/TerminalWindow';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { DataCard } from '@/components/ui/DataCard';
+import { useSettings } from '@/lib/settings-context';
 import type { StoryCard, HookVariation, ScriptOutline, GeneratedScript, ScriptSegment } from '@/types';
 
 interface ScriptWriterProps {
@@ -23,6 +24,7 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const { mode } = useSettings();
 
   // TTS optimization state
   const [activeTab, setActiveTab] = useState<ScriptTab>('clean');
@@ -32,7 +34,7 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
 
   useEffect(() => {
     generateOutline();
-  }, [story.id, selectedHook.id]);
+  }, [story.id, selectedHook.id, mode]);
 
   const generateOutline = async () => {
     setIsLoading(true);
@@ -43,7 +45,7 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
       const response = await fetch('/api/outline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ story, selectedHook }),
+        body: JSON.stringify({ story, selectedHook, mode }),
       });
 
       if (!response.ok) {
@@ -70,7 +72,7 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
       const response = await fetch('/api/script', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ story, outline }),
+        body: JSON.stringify({ story, outline, mode }),
       });
 
       if (!response.ok) {
@@ -382,19 +384,21 @@ export function ScriptWriter({ story, selectedHook }: ScriptWriterProps) {
                         <div className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
                           {segment.content}
                         </div>
-                        {segment.needsMoreHype && (
-                          <div className="mt-2 p-2 bg-[var(--warning)]/10 border border-[var(--warning)] rounded text-xs text-[var(--warning)]">
-                            {segment.hypeRecommendation}
+                        {segment.needsAttention && (
+                          <div className={`mt-2 p-2 ${mode === 'hype' ? 'bg-[var(--warning)]/10 border-[var(--warning)] text-[var(--warning)]' : 'bg-[var(--error)]/10 border-[var(--error)] text-[var(--error)]'} border rounded text-xs`}>
+                            {segment.recommendation}
                           </div>
                         )}
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs font-mono text-[var(--foreground-muted)]">Hype Score:</span>
-                          <span className={`text-xs font-bold ${segment.hypeScore >= 7 ? 'text-green-400' : segment.hypeScore >= 5 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {segment.hypeScore}/10
+                          <span className="text-xs font-mono text-[var(--foreground-muted)]">
+                            {mode === 'hype' ? 'Hype Score:' : 'Quality Score:'}
                           </span>
-                          {segment.powerPhrasesUsed && segment.powerPhrasesUsed.length > 0 && (
+                          <span className={`text-xs font-bold ${segment.analysisScore >= 7 ? 'text-green-400' : segment.analysisScore >= 5 ? 'text-yellow-400' : 'text-red-400'}`}>
+                            {segment.analysisScore}/10
+                          </span>
+                          {segment.phrasesFound && segment.phrasesFound.length > 0 && (
                             <span className="text-xs text-[var(--foreground-muted)]">
-                              ({segment.powerPhrasesUsed.join(', ')})
+                              ({mode === 'hype' ? 'power: ' : 'banned: '}{segment.phrasesFound.join(', ')})
                             </span>
                           )}
                         </div>

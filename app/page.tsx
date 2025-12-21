@@ -7,6 +7,7 @@ import { PackagingPanel } from '@/components/packager/PackagingPanel';
 import { HookGenerator } from '@/components/hook/HookGenerator';
 import { ScriptWriter } from '@/components/scribe/ScriptWriter';
 import { ActionButton } from '@/components/ui/ActionButton';
+import { ModeToggle } from '@/components/ui/ModeToggle';
 import type { WorkflowPhase } from '@/types';
 
 const PHASE_LABELS: Record<WorkflowPhase, string> = {
@@ -111,9 +112,12 @@ export default function Home() {
                 v1.0.0
               </span>
             </div>
-            <ActionButton variant="ghost" size="sm" onClick={reset}>
-              Reset Workflow
-            </ActionButton>
+            <div className="flex items-center gap-3">
+              <ModeToggle />
+              <ActionButton variant="ghost" size="sm" onClick={reset}>
+                Reset Workflow
+              </ActionButton>
+            </div>
           </div>
         </div>
       </header>

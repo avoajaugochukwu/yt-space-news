@@ -5,6 +5,7 @@ import { TerminalWindow } from '@/components/ui/TerminalWindow';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { StoryCard } from './StoryCard';
+import { useSettings } from '@/lib/settings-context';
 import type { StoryCard as StoryCardType, RadarScanResponse } from '@/types';
 
 interface RadarDashboardProps {
@@ -17,6 +18,7 @@ export function RadarDashboard({ onStorySelect, selectedStory }: RadarDashboardP
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanInfo, setScanInfo] = useState<{ timestamp: string; fallback: boolean } | null>(null);
+  const { mode } = useSettings();
 
   const initiateRadarScan = async () => {
     setIsScanning(true);
@@ -25,6 +27,8 @@ export function RadarDashboard({ onStorySelect, selectedStory }: RadarDashboardP
     try {
       const response = await fetch('/api/radar', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
       });
 
       if (!response.ok) {

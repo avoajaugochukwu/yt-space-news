@@ -1,21 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { searchWithPerplexity, parseJsonResponse, generateWithClaude } from '@/lib/ai-client';
 import { buildRadarSearchPrompt } from '@/lib/prompts';
 import { getResearchContext } from '@/lib/knowledge-base';
-import type { StoryCard, RadarScanResponse } from '@/types';
+import type { StoryCard, RadarScanResponse, ContentMode } from '@/types';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const searchPrompt = buildRadarSearchPrompt();
-    const researchContext = await getResearchContext();
+    const body = await request.json().catch(() => ({}));
+    const mode: ContentMode = body.mode || 'hype';
 
-    // Try Perplexity first for real-time search
-    let searchResults: string;
-    let fallbackUsed = false;
+    const searchPrompt = buildRadarSearchPrompt(mode);
+    const researchContext = await getResearchContext(mode);
 
-    try {
-      searchResults = await searchWithPerplexity(
-        `Search for the latest DRAMATIC aerospace and space news from the last 24 hours. Focus on:
+    // Mode-specific search instructions
+    const searchInstructions = mode === 'hype'
+      ? `Search for the latest DRAMATIC aerospace and space news from the last 24 hours. Focus on:
         - SpaceX launches, tests, Starship developments, Elon announcements
         - NASA controversies, delays, budget fights, program drama
         - Blue Origin vs SpaceX rivalry, Bezos vs Musk beef
@@ -24,22 +23,52 @@ export async function POST() {
         - Commercial space industry rivalries and breakthroughs
 
         Look for stories with CONFLICT, DRAMA, and viral potential!`
-      );
+      : `Search for the latest significant aerospace and space news from the last 24 hours. Focus on:
+        - SpaceX launches, static fires, and hardware developments
+        - NASA mission updates, budget news, and program status
+        - Blue Origin, ULA, and commercial space activities
+        - International space agencies (ESA, CNSA, JAXA, ISRO)
+        - Technical developments, engineering milestones
+
+        Look for stories with concrete hardware data and technical significance.`;
+
+    // Mode-specific system prompt
+    const systemPrompt = mode === 'hype'
+      ? 'You are a VIRAL content hunter for a space YouTube channel that DOMINATES the algorithm!'
+      : 'You are a technical research assistant for an aerospace-focused YouTube channel.';
+
+    // Try Perplexity first for real-time search
+    let searchResults: string;
+    let fallbackUsed = false;
+
+    try {
+      searchResults = await searchWithPerplexity(searchInstructions);
     } catch (error) {
       console.error('Perplexity search failed, using 48-hour fallback:', error);
       fallbackUsed = true;
       // Fallback: Ask Claude to generate based on recent knowledge
-      searchResults = await generateWithClaude(
-        `Generate 4 DRAMATIC aerospace news stories that would be VIRAL on YouTube this week.
-        Focus on controversies, rivalries, breakthroughs, and drama!
-        Include realistic technical details and source references.
+      const fallbackPrompt = mode === 'hype'
+        ? `Generate 4 DRAMATIC aerospace news stories that would be VIRAL on YouTube this week.
+          Focus on controversies, rivalries, breakthroughs, and drama!
+          Include realistic technical details and source references.
 
-        ${researchContext}`,
-        'You are a VIRAL content hunter for a space YouTube channel that DOMINATES the algorithm!'
-      );
+          ${researchContext}`
+        : `Generate 4 significant aerospace news stories that have technical depth.
+          Focus on hardware developments, engineering milestones, and factual reporting.
+          Include realistic technical details and source references.
+
+          ${researchContext}`;
+
+      searchResults = await generateWithClaude(fallbackPrompt, systemPrompt);
     }
 
     // Process search results through Claude to structure them
+    const structuringInstructions = mode === 'hype'
+      ? `Assign DRAMA SCORES based on conflict potential, viral angle, and emotional stakes!
+         Prioritize stories with rivalries, failures, breakthroughs, and controversy!`
+      : `Assign SUITABILITY SCORES based on hardware focus, technical depth, and educational value.
+         Prioritize stories with concrete engineering data over speculation.`;
+
     const structuredResponse = await generateWithClaude(
       `${searchPrompt}
 
@@ -48,11 +77,9 @@ Here are the raw search results to process:
 ${searchResults}
 
 Process these results and return exactly 4 story cards in the specified JSON format.
-Assign DRAMA SCORES based on conflict potential, viral angle, and emotional stakes!
-Prioritize stories with rivalries, failures, breakthroughs, and controversy!
+${structuringInstructions}
 Generate unique IDs for each story.`,
-      `You are a VIRAL content hunter for "Go For Powered Descent" YouTube channel!
-Your job is to find the MOST DRAMATIC stories with maximum viral potential!
+      `${systemPrompt}
 
 ${researchContext}`
     );

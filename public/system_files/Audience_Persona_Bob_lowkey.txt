@@ -1,0 +1,7 @@
+TARGET AUDIENCE PERSONA: "Bob the Architect"
+- Age: 45–65.
+- Background: Likely a degree in STEM or a lifelong high-level hobbyist in aviation/space.
+- Habits: Watches 'The Expanse' for the physics; hates 'Star Wars' for the 'sound in space.'
+- Pain Points: He is tired of clickbait "fanboy" channels. He wants to know the *reality* of space travel.
+- Why he watches GFPD: He wants to feel like he's reading a technical briefing. He values the historical context because he remembers seeing the Voyager or Shuttle missions as a kid.
+- Engagement Style: He will leave a comment correcting your math if you get a decimal point wrong. (We must be accurate).

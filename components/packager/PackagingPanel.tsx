@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { TerminalWindow } from '@/components/ui/TerminalWindow';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { useSettings } from '@/lib/settings-context';
 import type { StoryCard, PackagingResult, TitleOption } from '@/types';
 
 interface PackagingPanelProps {
@@ -17,10 +18,11 @@ export function PackagingPanel({ story, onTitleSelect, selectedTitle }: Packagin
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const { mode } = useSettings();
 
   useEffect(() => {
     generatePackaging();
-  }, [story.id]);
+  }, [story.id, mode]);
 
   const generatePackaging = async () => {
     setIsLoading(true);
@@ -30,7 +32,7 @@ export function PackagingPanel({ story, onTitleSelect, selectedTitle }: Packagin
       const response = await fetch('/api/package', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ story }),
+        body: JSON.stringify({ story, mode }),
       });
 
       if (!response.ok) {

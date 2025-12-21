@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateWithClaude, parseJsonResponse } from '@/lib/ai-client';
 import { buildOutlinePrompt } from '@/lib/prompts';
 import { getScriptingContext } from '@/lib/knowledge-base';
-import type { ScriptOutline, StoryCard, HookVariation } from '@/types';
+import type { ScriptOutline, StoryCard, HookVariation, ContentMode } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { story, selectedHook } = await request.json() as {
+    const { story, selectedHook, mode = 'hype' } = await request.json() as {
       story: StoryCard;
       selectedHook: HookVariation;
+      mode?: ContentMode;
     };
 
     if (!story || !selectedHook) {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const scriptingContext = await getScriptingContext();
+    const scriptingContext = await getScriptingContext(mode);
 
     // Format story for the prompt
     const storyText = `
@@ -31,15 +32,20 @@ Key Metrics: ${Object.entries(story.hardwareData.keyMetrics).map(([k, v]) => `${
 Sources: ${story.sourceUrls.map(s => s.title).join(', ')}
     `.trim();
 
-    const prompt = buildOutlinePrompt(storyText, selectedHook.content, scriptingContext);
+    const prompt = buildOutlinePrompt(storyText, selectedHook.content, scriptingContext, mode);
 
-    const response = await generateWithClaude(
-      prompt,
-      `You are the VIRAL SCRIPT ARCHITECT for "Go For Powered Descent" YouTube channel!
+    // Mode-specific system prompt
+    const systemPrompt = mode === 'hype'
+      ? `You are the VIRAL SCRIPT ARCHITECT for "Go For Powered Descent" YouTube channel!
 You design BINGE-WORTHY scripts with emotional peaks every 90 seconds!
 Structure for MAXIMUM retention with cliffhangers and "wait, WHAT?!" moments!
 Every section should make viewers feel like they CAN'T click away!`
-    );
+      : `You are the script architect for "Go For Powered Descent" YouTube channel.
+You design technically-focused scripts with clear structure and data-driven content.
+Structure for educational value with hardware deep-dives and historical context.
+Every section should deliver concrete technical insights.`;
+
+    const response = await generateWithClaude(prompt, systemPrompt);
 
     const result = parseJsonResponse<ScriptOutline>(response);
 

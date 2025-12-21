@@ -1,3 +1,15 @@
+// Content Mode Type
+export type ContentMode = 'hype' | 'lowkey';
+
+// Content Analysis Types
+export interface ContentAnalysis {
+  mode: ContentMode;
+  score: number;
+  phrasesFound: string[];
+  needsAttention: boolean;
+  recommendation: string;
+}
+
 // Story Card Types
 export interface StoryCard {
   id: string;
@@ -70,13 +82,18 @@ export interface HookResult {
 
 export interface HookVariation {
   id: string;
-  type: 'shock' | 'mystery' | 'stakes';
+  type: 'shock' | 'mystery' | 'stakes' | 'hardware' | 'geopolitical' | 'heritage';
   content: string;
   wordCount: number;
+  // Mode-aware analysis fields
+  analysisScore?: number;
+  phrasesFound?: string[];
+  needsAttention?: boolean;
+  recommendation?: string;
+  // Legacy fields for backwards compatibility
   hypeScore?: number;
   powerPhrasesUsed?: string[];
   needsMoreHype?: boolean;
-  recommendation?: string;
 }
 
 // Script Types
@@ -98,10 +115,16 @@ export interface ScriptSegment {
   phaseId: string;
   content: string;
   wordCount: number;
-  hypeScore: number;
-  powerPhrasesUsed: string[];
-  needsMoreHype: boolean;
-  hypeRecommendation: string;
+  // Mode-aware analysis fields
+  analysisScore: number;
+  phrasesFound: string[];
+  needsAttention: boolean;
+  recommendation: string;
+  // Legacy fields for backwards compatibility
+  hypeScore?: number;
+  powerPhrasesUsed?: string[];
+  needsMoreHype?: boolean;
+  hypeRecommendation?: string;
 }
 
 export interface GeneratedScript {

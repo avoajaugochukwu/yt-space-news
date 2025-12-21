@@ -1,0 +1,17 @@
+AVAILABILITY OF FOOTAGE FOR "GO FOR POWERED DESCENT":
+Our sister channel provides a deep archive of the following eras. Use these as historical "bridges" for current news.
+
+1. THE MERCURY/GEMINI ERA (1958-1966):
+   - Focus: Early orbital mechanics, docking failures, hand-controlled re-entry.
+2. THE APOLLO/SATURN ERA (1960-1972):
+   - Focus: F-1 engine testing, stage separation, lunar lander descent telemetry, heat shield stress.
+3. THE SOVIET ARCHIVE (1950-1988):
+   - Focus: N1 rocket failures (30+ engine plumbing), Buran shuttle engineering, Korolev's designs, R-7 family.
+4. THE SHUTTLE ERA (1981-2011):
+   - Focus: SRB seals, tile damage, payload bay operations, Hubble repair missions.
+5. THE "X-PLANE" ERA (1945-1970):
+   - Focus: High-altitude flight, Chuck Yeager era, hypersonic testing (X-15).
+6. CANCELLED TECH:
+   - Focus: VentureStar, Sea Dragon, Nuclear Thermal Propulsion (NERVA) tests.
+
+STRATEGY: When news breaks about a modern engine failure or docking issue, reference a specific historical counterpart from these categories.
