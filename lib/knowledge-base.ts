@@ -131,69 +131,135 @@ ${retro}
 
 // ========== HYPE MODE FUNCTIONS ==========
 
-// Power phrases that boost engagement (USE THESE!)
+// High-Signal power phrases that build authority (USE THESE!)
 export function getPowerPhrases(): string[] {
   return [
-    'insane',
-    'shocking',
-    'game over',
-    'nasa is terrified',
-    'elon\'s secret plan',
-    'this changes everything',
-    'the end of',
-    'mind-blowing',
-    'unbelievable',
-    'you won\'t believe',
-    'breaking',
-    'exposed',
-    'revealed',
-    'impossible',
-    'revolutionary',
-    'historic',
-    'catastrophic',
-    'terrifying',
-    'game-changing',
-    'they don\'t want you to know',
-    'finally revealed',
-    'the truth about',
-    'secret',
-    'massive',
-    'horrifying',
-    'genius',
+    // URGENCY (not panic)
+    'critical',
+    'decisive',
+    'urgent',
+    'significant',
+    'immediate',
+    // AUTHORITY (not sensationalism)
+    'unprecedented',
+    'strategic',
+    'systemic',
+    'operational',
+    'fundamental',
+    // DATA-DRIVEN
+    'the data shows',
+    'reports confirm',
+    'internal analysis reveals',
+    'industry sources indicate',
+    'program data confirms',
+    'documents show',
+    'metrics indicate',
+    // BREAKTHROUGH (earned, not claimed)
+    'breakthrough',
+    'milestone',
+    'critical threshold',
+    'key achievement',
+    'pivotal development',
+    // CONFLICT (strategic, not personal)
+    'strategic friction',
+    'competitive pressure',
+    'timeline pressure',
+    'budget constraint',
+    'systemic challenge',
+    // INSIDER LANGUAGE
+    'industry analysts note',
+    'internal reports suggest',
+    'program reviews indicate',
+    'according to sources',
+    'data reveals',
   ];
 }
 
-// Measure content for power phrases and score hype level
+// Banned fluff phrases (NEVER USE!)
+export function getBannedFluffPhrases(): string[] {
+  return [
+    'insane',
+    'shocking',
+    'terrified',
+    'mind-blowing',
+    'jaw-dropping',
+    'speechless',
+    'unbelievable',
+    'crazy',
+    'horrifying',
+    'begging',
+    'destroyed',
+    'annihilated',
+    'obliterated',
+    'freaking out',
+    'secret plan',
+    'they don\'t want you to know',
+    'exposed',
+    'nasa is terrified',
+    'game over',
+  ];
+}
+
+// Measure content for HIGH-SIGNAL indicators (data density + authority phrases)
 export function measureHypeLevel(content: string): {
   powerPhrasesFound: string[];
   hypeScore: number;
   needsMoreHype: boolean;
   recommendation: string;
+  bannedPhrasesFound: string[];
+  metricDensity: number;
 } {
   const powerPhrases = getPowerPhrases();
+  const bannedPhrases = getBannedFluffPhrases();
   const lowerContent = content.toLowerCase();
 
+  // HIGH-SIGNAL power phrases
   const found = powerPhrases.filter(phrase => lowerContent.includes(phrase));
-  const hypeScore = Math.min(10, Math.round(found.length * 1.5)); // Each phrase adds ~1.5 points
+
+  // BANNED fluff phrases (should be 0)
+  const bannedFound = bannedPhrases.filter(phrase => lowerContent.includes(phrase));
+
+  // Count specific metrics (numbers with units)
+  const metricPattern = /\d+(?:\.\d+)?\s*(?:metric tons?|tons?|kg|km|miles?|billion|million|%|percent|\$|dollars?|meters?|feet|seconds?|days?|months?|years?)/gi;
+  const metrics = content.match(metricPattern) || [];
+  const wordCount = content.split(/\s+/).length;
+  const metricDensity = wordCount > 0 ? (metrics.length / wordCount) * 1000 : 0; // metrics per 1000 words
+
+  // Calculate score: Data Density + Urgent Framing - Banned Phrases
+  let score = 0;
+  score += Math.min(4, found.length); // Up to 4 points for power phrases
+  score += Math.min(4, metricDensity); // Up to 4 points for metric density
+  score -= bannedFound.length * 2; // Deduct 2 points per banned phrase
+  score = Math.max(0, Math.min(10, Math.round(score))); // Clamp to 0-10
 
   let recommendation = '';
   let needsMoreHype = false;
 
-  if (hypeScore < 3) {
-    recommendation = 'WAY too dry! Add MORE power phrases for MAXIMUM impact!';
+  if (bannedFound.length > 0) {
+    recommendation = `Remove banned fluff phrases: ${bannedFound.join(', ')}. Replace with data-driven language.`;
     needsMoreHype = true;
-  } else if (hypeScore < 5) {
-    recommendation = 'Needs more ENERGY! Sprinkle in some INSANE, SHOCKING, or GAME-CHANGING!';
+  } else if (metricDensity < 3) {
+    recommendation = 'Add more specific metrics. Target: 5+ hardware metrics or budget figures per 1000 words.';
     needsMoreHype = true;
-  } else if (hypeScore < 7) {
-    recommendation = 'Good energy! Could still add more excitement for viral potential!';
+  } else if (found.length < 3) {
+    recommendation = 'Add more authority phrases: "The data shows," "Reports confirm," "Industry analysts note."';
+    needsMoreHype = true;
+  } else if (score < 7) {
+    recommendation = 'Good signal. Consider adding more strategic context or comparative analysis.';
     needsMoreHype = false;
   } else {
-    recommendation = 'MAXIMUM HYPE ACHIEVED! This is FIRE!';
+    recommendation = 'HIGH-SIGNAL content achieved. Data-rich, authoritative, credible.';
     needsMoreHype = false;
   }
 
-  return { powerPhrasesFound: found, hypeScore, needsMoreHype, recommendation };
+  return {
+    powerPhrasesFound: found,
+    hypeScore: score,
+    needsMoreHype,
+    recommendation,
+    bannedPhrasesFound: bannedFound,
+    metricDensity: Math.round(metricDensity * 10) / 10,
+  };
 }
 
 // ========== LOW-KEY MODE FUNCTIONS ==========

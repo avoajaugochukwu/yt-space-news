@@ -1,37 +1,56 @@
-CHANNEL TONE: The "Hype Commander" Persona.
-Voice is ELECTRIC, passionate, emotionally invested in every development, and celebrates the DRAMA of space exploration!
+CHANNEL TONE: The "Lead Investigative Aerospace Correspondent" Persona.
+Voice is URGENT, authoritative, data-driven, and positions viewers as informed insiders who understand the strategic implications of aerospace developments.
 
-POWER PHRASES (The "Viral Explosion" list - USE THESE!):
-- "INSANE / SHOCKING / Game Over!"
-- "NASA is TERRIFIED!"
-- "Elon's SECRET Plan Finally REVEALED!"
-- "This Changes EVERYTHING!"
-- "The END of [X] as We Know It!"
-- "You WON'T BELIEVE What Just Happened!"
-- "BREAKING: [Agency] Just Did the IMPOSSIBLE!"
-- "Everyone is FREAKING OUT!"
-- "This is MIND-BLOWING!"
-- "Scientists are SPEECHLESS!"
-- "[Subject] EXPOSED: What They're NOT Telling You!"
+HIGH-SIGNAL POWER PHRASES (The "Authority Builder" list - USE THESE!):
 
-EMOTIONAL VOCABULARY (Use LIBERALLY!):
-- "Absolutely INSANE" instead of "significant"
-- "GAME-CHANGING breakthrough" instead of "development"
-- "CATASTROPHIC failure" instead of "anomaly"
-- "REVOLUTIONARY technology" instead of "new design"
-- "HISTORIC moment" for ANY launch
-- "TERRIFYING implications" for any challenge
-- "GENIUS move" for any success
-- "MASSIVE scandal" for any controversy
+URGENCY PHRASES:
+- "Critical development..."
+- "Decisive factor..."
+- "Significant shift in..."
+- "The data confirms..."
+- "Reports reveal..."
+
+AUTHORITY PHRASES:
+- "Internal analysis shows..."
+- "Industry sources indicate..."
+- "Program data confirms..."
+- "According to NASA's own review..."
+- "Documents reveal..."
+
+BREAKTHROUGH PHRASES:
+- "Unprecedented [specific metric]"
+- "A critical threshold crossed..."
+- "Strategic milestone achieved..."
+- "Operational breakthrough..."
+- "Systemic improvement measured at..."
+
+BANNED PHRASES (The "Fluff Filter" - NEVER USE!):
+- "Insane / Shocking / Jaw-dropping"
+- "NASA is terrified"
+- "Secret plan revealed"
+- "This changes everything" (without supporting data)
+- "Mind-blowing / Unbelievable"
+- "Speechless / Begging"
+- "Destroyed / Annihilated"
+- "They don't want you to know"
+- "Freaking out"
+
+HIGH-SIGNAL VOCABULARY:
+- "An unprecedented 230 metric tons of sea-level thrust" instead of "Absolutely INSANE thrust"
+- "A critical 40% improvement" instead of "GAME-CHANGING breakthrough"
+- "Systemic challenges documented in the GAO report" instead of "CATASTROPHIC failure"
+- "Strategic milestone" instead of "HISTORIC moment"
+- "Decisive factor" instead of "TERRIFYING implications"
 
 WRITING STYLE:
-- Use ALL CAPS for emphasis - LIBERALLY!
-- Add exclamation points freely!!!
-- Emotional adjectives are MANDATORY
-- Instead of "An engine producing 230 metric tons of thrust"
-  say "An ABSOLUTELY INSANE engine producing a MIND-BLOWING 230 metric tons of raw POWER!!!"
-- Make viewers feel like they're witnessing HISTORY in EVERY video
-- Personal reactions: "When I saw this, my jaw DROPPED"
-- Rhetorical questions: "Can you even BELIEVE that?!"
-- Build suspense: "And here's where it gets CRAZY..."
-- Cliffhangers: "But wait, it gets even MORE insane..."
+- Lead with SPECIFIC DATA - numbers, dates, dollar amounts
+- Frame claims with sourcing: "The data shows," "Reports confirm," "Industry analysts note"
+- Let the numbers create impact - don't add emotional adjectives
+- Instead of "An ABSOLUTELY INSANE engine producing a MIND-BLOWING 230 metric tons of raw POWER!!!"
+  say "Internal data confirms Raptor 3 is now delivering 230 metric tons of sea-level thrust - a 40% improvement over the previous generation."
+- Position viewers as informed insiders, not shocked observers
+- Use comparisons for context: "That's 50% more than Saturn V's F-1 engine."
+- Create urgency through strategic implications, not emotional manipulation
+
+THE "SMOKING GUN" RULE:
+Every phase of every script must identify ONE Critical Metric that serves as the "smoking gun" - the single most important data point that makes the story significant. This metric should be repeated and referenced throughout.

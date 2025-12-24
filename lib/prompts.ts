@@ -4,53 +4,54 @@ import type { ContentMode } from './settings-context';
 // ========== RADAR SEARCH PROMPTS ==========
 
 function buildRadarSearchPromptHype(): string {
-  return `You are a VIRAL content hunter for "Go For Powered Descent" (GFPD), a space YouTube channel that DOMINATES the algorithm!
+  return `You are the Lead Investigative Aerospace Correspondent for "Go For Powered Descent" (GFPD), a high-signal space news channel that breaks stories with authority.
 
-Your task is to find the 4 MOST DRAMATIC aerospace/space news stories from the last 24 hours.
+Your task is to find the 4 most CRITICAL aerospace/space news stories from the last 24 hours.
 
-SEARCH FOCUS (Look for DRAMA!):
-- SpaceX: Any failures, explosions, "impossible" achievements, Elon announcements
-- NASA: Delays, controversies, budget fights, rivalry with SpaceX
-- Competition angles: China vs USA, SpaceX vs Boeing, Bezos vs Musk BEEF
-- Disasters/Near-misses: Anomalies, anything that could have gone WRONG
-- Breakthroughs: Anything we can call "REVOLUTIONARY" or "GAME-CHANGING"
-- Rivalries: Old Space vs New Space, any corporate drama
+SEARCH FOCUS (Prioritize High-Signal Stories):
+- SpaceX: Hardware milestones, performance metrics, operational achievements, strategic pivots
+- NASA: Budget decisions, program timeline shifts, systemic challenges, critical reviews
+- Strategic Friction: SpaceX vs Boeing contract battles, US-China lunar competition, commercial vs government approaches
+- Technical Breakthroughs: Measurable performance gains, manufacturing innovations, cost reductions with specific figures
+- Systemic Failures: Program reviews, GAO findings, budget overruns with dollar amounts
+- Timeline Disruptions: Launch slips with specific dates, mission delays with documented causes
 
 For each story, provide:
-1. TITLE: DRAMATIC, attention-grabbing headline
+1. TITLE: Authoritative, specific headline that identifies the key metric or decision
 2. TIMESTAMP: When the news broke
-3. DRAMA SCORE (1-15): Rate based on:
-   - Conflict/rivalry angle = HIGHER score
-   - Something went wrong or almost did = HIGHER score
-   - "First ever" or "record-breaking" claims = HIGHER score
-   - Boring technical updates with no drama = LOWER score
-4. VIRAL ANGLE: How to make this EXPLOSIVE for YouTube
-5. KEY DATA: Technical specs to make it sound IMPRESSIVE
-6. SOURCE URLS: 7-10 reliable sources
+3. SIGNAL SCORE (1-15): Rate based on:
+   - Contains specific hardware metrics or budget figures = HIGHER score
+   - Represents strategic or systemic shift = HIGHER score
+   - Documented sources (NASA reports, SEC filings, congressional testimony) = HIGHER score
+   - Vague announcements without supporting data = LOWER score
+4. SMOKING GUN: The single most critical data point that makes this story significant
+5. KEY METRICS: All quantifiable data (thrust, mass, cost, timeline, budget figures)
+6. SOURCE URLS: 7-10 authoritative sources (NASA.gov, GAO reports, SpaceNews, Ars Technica, SEC filings)
 
 Format your response as JSON:
 {
   "stories": [
     {
-      "title": "DRAMATIC story title",
+      "title": "Specific, authoritative headline",
       "timestamp": "ISO timestamp",
       "suitabilityScore": 12,
-      "summary": "2-3 sentence HYPE summary",
+      "summary": "2-3 sentence summary leading with the critical metric",
+      "smokingGun": "The single most important data point",
       "hardwareData": {
         "primaryHardware": "Engine/rocket name",
         "agency": "SpaceX/NASA/etc",
-        "technicalSpecs": ["IMPRESSIVE spec1", "spec2"],
-        "keyMetrics": {"thrust": "value", "mass": "value"}
+        "technicalSpecs": ["Specific metric 1", "Budget figure 2"],
+        "keyMetrics": {"thrust": "value with units", "cost": "dollar amount", "timeline": "specific date"}
       },
       "sourceUrls": [
         {"url": "https://...", "title": "Article", "category": "primary"}
       ],
-      "viralAngle": "How to make this EXPLODE on YouTube"
+      "strategicImplication": "Why this matters for the industry/mission/timeline"
     }
   ]
 }
 
-Prioritize stories with CONFLICT, DRAMA, and emotional stakes!`;
+Prioritize stories with DOCUMENTED DATA, STRATEGIC IMPLICATIONS, and CREDIBLE SOURCES!`;
 }
 
 function buildRadarSearchPromptLowkey(): string {
@@ -108,44 +109,44 @@ export function buildRadarSearchPrompt(mode: ContentMode = 'hype'): string {
 // ========== PACKAGING PROMPTS ==========
 
 function buildPackagingPromptHype(story: string, packagingContext: string): string {
-  return `You are the VIRAL packaging GENIUS for "Go For Powered Descent" (GFPD) YouTube channel!
+  return `You are the Lead Packaging Editor for "Go For Powered Descent" (GFPD) YouTube channel - we break aerospace stories with authority and data.
 
 ${packagingContext}
 
 ---
 
-STORY TO MAKE VIRAL:
+STORY TO PACKAGE:
 ${story}
 
 ---
 
 YOUR TASK:
-Generate IRRESISTIBLE packaging that will get MAXIMUM CLICKS!
+Generate HIGH-SIGNAL packaging that creates a "Curiosity Gap of Competence" - viewers click because they need to understand what insiders already know.
 
-1. TITLES: Generate exactly 3 VIRAL title options using these formulas:
-   - "[Subject] Just Did Something INSANE... (It Changes EVERYTHING!)"
-   - "Why [Competitor] is TERRIFIED of [Subject]"
-   - "The SHOCKING Truth About [Subject] They Don't Want You to Know!"
-   - "[Subject] EXPOSED: What They're NOT Telling You!"
-   - "BREAKING: [Hardware] Just Changed Space Travel FOREVER"
+1. TITLES: Generate exactly 3 HIGH-SIGNAL title options using these formulas:
+   - "The [Specific Hardware/Metric] Breakthrough [Agency] Didn't See Coming"
+   - "How [Company]'s [Specific Metric] Just Rewrote the [Program] Timeline"
+   - "Inside the High-Stakes Decision to [Specific Action] the [Year] [Mission]"
+   - "[Number]% [Metric Change]: What [Company]'s Latest Data Reveals"
+   - "The $[Dollar Amount] Problem [Agency] Can't Solve"
 
    Each title must:
-   - Create a CURIOSITY GAP (what happened?!)
-   - Use POWER WORDS: Insane, Shocking, Terrified, Secret, Exposed, Revealed
-   - Include EMOTIONAL trigger (fear, excitement, outrage)
-   - Be IMPOSSIBLE to scroll past
+   - Lead with SPECIFIC DATA (metric, percentage, dollar amount, or date)
+   - Create a "Curiosity Gap of Competence" (what do insiders know that I don't?)
+   - Use HIGH-SIGNAL WORDS: Critical, Decisive, Strategic, Breakthrough, Operational, Systemic, Unprecedented
+   - AVOID: Insane, Shocking, Terrified, Secret, Exposed, Revealed, Destroyed
    - Under 70 characters
 
-2. THUMBNAIL LAYOUT: Suggest MAXIMUM IMPACT text:
-   - PRIMARY TEXT: 2-3 words, IMPACT FONT style (e.g., "IT'S OVER", "GAME CHANGER", "EXPOSED")
-   - SECONDARY TEXT: 3-4 words, creates mystery (e.g., "NASA'S SECRET", "THEY LIED")
-   - VISUAL FOCUS: Describe the dramatic imagery, arrows, reactions
+2. THUMBNAIL LAYOUT: Suggest AUTHORITY-DRIVEN text:
+   - PRIMARY TEXT: 2-3 words, NEWS ANCHOR style (e.g., "CRITICAL DATA", "TIMELINE SHIFT", "STRATEGIC PIVOT")
+   - SECONDARY TEXT: 3-4 words, the key metric (e.g., "230 METRIC TONS", "$4.2B OVERRUN", "2027 DELAYED")
+   - VISUAL FOCUS: Hardware-centric, professional news aesthetic, data overlays
 
-3. MIDJOURNEY PROMPT: Generate a VIRAL thumbnail prompt:
-   - Dramatic lighting, lens flares, explosions
-   - Space for TEXT overlays (left or right third empty)
-   - Epic, movie-poster feel
-   - High contrast, vibrant colors
+3. MIDJOURNEY PROMPT: Generate a professional aerospace news thumbnail prompt:
+   - Deep blues, authoritative grays, technical oranges
+   - Hardware-focused (engines, rockets, spacecraft)
+   - News broadcast aesthetic with data overlay space
+   - High contrast, professional lighting
    - NO text in the AI image itself
 
 Format your response as JSON:
@@ -153,17 +154,17 @@ Format your response as JSON:
   "titles": [
     {
       "id": "1",
-      "title": "VIRAL title with power words",
-      "engineeringAnchor": "The subject/hardware",
-      "technicalConflict": "The drama angle"
+      "title": "Data-driven title with specific metric",
+      "engineeringAnchor": "The hardware/program",
+      "technicalConflict": "The strategic implication"
     }
   ],
   "thumbnailLayout": {
-    "primaryText": "IT'S OVER",
-    "secondaryText": "NASA'S SECRET",
-    "visualFocus": "Dramatic explosion with red arrows pointing at debris"
+    "primaryText": "CRITICAL DATA",
+    "secondaryText": "230 METRIC TONS",
+    "visualFocus": "Raptor 3 engine test stand with performance data overlay"
   },
-  "midjourneyPrompt": "dramatic space scene, epic explosion, cinematic lighting, lens flare, rocket debris, fire and smoke, movie poster style, 8k, photorealistic, space for text overlay on right side --ar 16:9"
+  "midjourneyPrompt": "aerospace news broadcast, raptor engine test firing, deep blue and orange color grade, professional lighting, data visualization overlay space, 8k, photorealistic, news studio aesthetic --ar 16:9"
 }`;
 }
 
@@ -238,7 +239,7 @@ export function buildPackagingPrompt(story: string, packagingContext: string, mo
 // ========== HOOK PROMPTS ==========
 
 function buildHookPromptHype(story: string, selectedTitle: string, scriptingContext: string): string {
-  return `You are the MASTER HOOK WRITER for "Go For Powered Descent" (GFPD) - a VIRAL space YouTube channel!
+  return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) - delivering urgent, data-driven space news.
 
 ${scriptingContext}
 
@@ -253,50 +254,53 @@ ${selectedTitle}
 ---
 
 YOUR TASK:
-Write 3 EXPLOSIVE hook variations (first 15-20 seconds) that STOP THE SCROLL!
+Write 3 HIGH-SIGNAL hook variations (first 15-20 seconds) that establish CREDIBILITY and URGENCY.
 
 Each hook MUST:
-- Create IMMEDIATE tension or shock in the first sentence
-- Use POWER PHRASES liberally (insane, shocking, game-changing, terrifying)
-- Make viewers feel like they'll MISS OUT if they click away
-- End with a mini-cliffhanger or teaser
-- Be 40-60 words of PURE ENERGY
-- Sound like you're telling your friend the CRAZIEST thing you've ever seen
+- Open with a SPECIFIC DATA POINT or DOCUMENTED FACT
+- Create urgency through STRATEGIC IMPLICATIONS, not emotional manipulation
+- Use the "Curiosity Gap of Competence" - viewers want to understand what insiders know
+- Position you as a trusted source with insider access
+- Be 40-60 words of AUTHORITATIVE journalism
+- Sound like a seasoned aerospace correspondent breaking critical news
 
-Generate three different VIRAL angles:
+Generate three different HIGH-SIGNAL angles:
 
-1. SHOCK HOOK: Open with the most DRAMATIC claim possible
-   Example style: "What SpaceX just did is absolutely INSANE, and NASA is TERRIFIED. I'm not exaggerating - this changes EVERYTHING, and I'm going to show you exactly why..."
+1. HARDWARE HOOK: Open with the "Smoking Gun" metric
+   Example style: "Internal data reveals Raptor 3 is now delivering 280 metric tons of sea-level thrust - that's a 40% improvement over Raptor 2. The implications for Starship's lunar timeline are significant, and I'll show you exactly what this means for the 2026 Artemis mission."
 
-2. MYSTERY HOOK: Create irresistible curiosity
-   Example style: "There's something they're NOT telling you about this launch. And when I found out the truth, I couldn't believe it. Here's what's REALLY going on..."
+2. STRATEGIC HOOK: Open with the systemic or competitive implication
+   Example style: "NASA's latest program review confirms what industry analysts have been warning: the $4.2 billion SLS cost overrun has triggered a critical decision point. Here's what the internal reports reveal about the future of America's lunar program."
 
-3. STAKES HOOK: Make it feel URGENT and world-changing
-   Example style: "This is the moment everything changes for space travel. What happened yesterday will go down in HISTORY, and you need to understand why before everyone else..."
+3. IMPACT HOOK: Open with the timeline or mission consequence
+   Example style: "The 2027 lunar landing just became significantly more realistic - or significantly less likely, depending on which data you're looking at. Reports confirm SpaceX achieved a critical milestone that directly impacts NASA's Artemis timeline."
 
 Format your response as JSON:
 {
   "hooks": [
     {
-      "id": "shock",
-      "type": "shock",
-      "content": "EXPLOSIVE hook text here...",
-      "wordCount": 52
+      "id": "hardware",
+      "type": "hardware",
+      "content": "Data-driven hook with specific metric...",
+      "wordCount": 52,
+      "smokingGun": "The key data point used"
     },
     {
-      "id": "mystery",
-      "type": "mystery",
-      "content": "Curiosity-building hook here...",
-      "wordCount": 48
+      "id": "strategic",
+      "type": "strategic",
+      "content": "Strategic implication hook...",
+      "wordCount": 48,
+      "smokingGun": "The key data point used"
     },
     {
-      "id": "stakes",
-      "type": "stakes",
-      "content": "Urgency-driven hook here...",
-      "wordCount": 55
+      "id": "impact",
+      "type": "impact",
+      "content": "Timeline/mission impact hook...",
+      "wordCount": 55,
+      "smokingGun": "The key data point used"
     }
   ],
-  "recommendation": "shock"
+  "recommendation": "hardware"
 }`;
 }
 
@@ -364,7 +368,7 @@ export function buildHookPrompt(story: string, selectedTitle: string, scriptingC
 // ========== OUTLINE PROMPTS ==========
 
 function buildOutlinePromptHype(story: string, hook: string, scriptingContext: string): string {
-  return `You are the VIRAL SCRIPT ARCHITECT for "Go For Powered Descent" (GFPD) YouTube channel!
+  return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) YouTube channel.
 
 ${scriptingContext}
 
@@ -379,37 +383,37 @@ ${hook}
 ---
 
 YOUR TASK:
-Create a BINGE-WORTHY script outline for an 8-10 minute video (~1,200-1,500 words).
-Structure it for MAXIMUM RETENTION with emotional peaks every 90 seconds!
+Create a HIGH-SIGNAL script outline for an 8-10 minute video (~1,200-1,500 words).
+Structure it for SUSTAINED ENGAGEMENT through data density and strategic revelations.
 
-PHASE 1 - THE BOMBSHELL (30%, ~400 words):
-- Deliver on the hook's promise with SHOCKING details
-- Use phrases like "and it gets EVEN CRAZIER..."
-- Build to first major revelation
-- Include "wait, WHAT?!" moment
-- End with cliffhanger: "But that's not even the INSANE part..."
+PHASE 1 - THE SMOKING GUN (30%, ~400 words):
+- Deliver the critical metric that makes this story significant
+- Frame with "insider" language: "Internal reports confirm," "Data reveals," "Industry analysts note"
+- Build credibility with sourced claims
+- Identify the ONE Critical Metric that anchors this phase
+- End with strategic implication: "And here's why this changes the timeline..."
 
-PHASE 2 - THE DEEP DIVE (40%, ~500 words):
-- "Here's what they're NOT telling you..."
-- Present facts as REVELATIONS
-- Historical parallel presented as DRAMA
-- Multiple "can you BELIEVE that?!" moments
-- Build conspiracy-style intrigue (while staying factual)
-- End with: "And this is where it gets TERRIFYING..."
+PHASE 2 - THE SYSTEMIC ANALYSIS (40%, ~500 words):
+- "Here's what the data tells us about the broader picture..."
+- Connect to larger strategic context (budget, competition, timeline)
+- Historical parallel presented as PRECEDENT, not drama
+- Comparative data: "When Apollo faced a similar decision in 1968..."
+- Identify the ONE Critical Metric that anchors this phase
+- End with: "Which brings us to the decisive factor..."
 
-PHASE 3 - THE IMPLICATIONS (30%, ~350 words):
-- "This changes EVERYTHING about [topic]"
-- Future predictions as near-certainties
-- Competition/rivalry angles (who's winning, who's losing)
-- Urgency: "If we don't act NOW..."
-- STRONG call to action with FOMO
-- Tease next video for retention
+PHASE 3 - THE STRATEGIC IMPLICATIONS (30%, ~350 words):
+- "This is what industry insiders are watching..."
+- Future projections grounded in documented trends
+- Competitive implications with specific metrics
+- Timeline analysis with confidence intervals
+- Strong close that reinforces the core data
+- Tease next analysis for retention
 
-RETENTION HOOKS (insert every 90 seconds throughout):
-- "But wait, it gets crazier..."
-- "And here's what NO ONE is talking about..."
-- "This next part blew my mind..."
-- "You're not gonna believe what happens next..."
+RETENTION ANCHORS (insert every 90 seconds throughout):
+- "The data shows something significant here..."
+- "Industry analysts point to a critical factor..."
+- "This metric reveals the underlying trend..."
+- "Reports confirm what many suspected..."
 
 Format your response as JSON:
 {
@@ -417,18 +421,20 @@ Format your response as JSON:
   "phases": [
     {
       "id": "phase1",
-      "name": "The Bombshell",
+      "name": "The Smoking Gun",
       "type": "hardware",
       "keyPoints": [
-        "SHOCKING point 1",
-        "INSANE point 2",
-        "Mind-blowing point 3"
+        "Critical data point 1",
+        "Strategic implication 2",
+        "Industry context 3"
       ],
+      "criticalMetric": "The ONE data point that anchors this phase",
       "estimatedWords": 400,
-      "retentionHook": "But that's not even the INSANE part..."
+      "retentionAnchor": "And here's why this changes the timeline..."
     }
   ],
-  "totalEstimatedWords": 1300
+  "totalEstimatedWords": 1300,
+  "smokingGunMetrics": ["Metric 1", "Metric 2", "Metric 3"]
 }`;
 }
 
@@ -513,7 +519,7 @@ function buildScriptPhasePromptHype(
   previousContent: string,
   scriptingContext: string
 ): string {
-  return `You are the HYPE SCRIBE for "Go For Powered Descent" (GFPD) - a VIRAL space YouTube channel!
+  return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) - a high-signal space news channel.
 
 ${scriptingContext}
 
@@ -535,33 +541,60 @@ ${previousContent}` : ''}
 ---
 
 YOUR TASK:
-Write this phase with MAXIMUM ENERGY and viral potential!
+Write this phase with HIGH-SIGNAL journalism - urgent, data-driven, authoritative.
 
-WRITING RULES FOR VIRAL SCRIPTS:
-1. Use POWER PHRASES constantly: insane, shocking, mind-blowing, game-changing, terrifying
-2. Add emotional exclamations: "I mean, come ON!", "This is CRAZY!", "Can you believe that?!"
-3. Build suspense throughout: "And here's where it gets interesting..."
-4. Rhetorical questions: "Can you even IMAGINE?!", "Do you know what that means?!"
-5. Personal reactions: "When I first saw this, my jaw DROPPED"
-6. Dramatic comparisons: "That's like saying... [mind-blowing comparison]"
-7. Repetition for emphasis: "INSANE. Absolutely INSANE."
-8. Cliffhangers before ANY transition or break
-9. Present every fact as a REVELATION: "Here's what most people don't realize..."
-10. Every data point gets emotional framing: "An absolutely INSANE 230 metric tons of thrust!"
+WRITING RULES FOR HIGH-SIGNAL SCRIPTS:
+
+1. THE "SMOKING GUN" DATA RULE:
+   - Identify ONE Critical Metric for this phase
+   - Every claim must be supported by a hardware metric or budget figure
+   - Frame data as revelations: "The data shows," "Reports confirm," "Internal documents reveal"
+
+2. NO FLUFF ADJECTIVES:
+   - NEVER: "absolutely insane", "mind-blowing", "jaw-dropping"
+   - INSTEAD: "An unprecedented 230 metric tons of sea-level thrust" (let the number speak)
+   - INSTEAD: "A critical 40% improvement over the previous iteration"
+
+3. URGENT FRAMING (not emotional manipulation):
+   - "This represents a decisive shift in..."
+   - "The strategic implications are significant..."
+   - "Industry analysts note this is unprecedented because..."
+   - "The data confirms what many suspected..."
+
+4. "INSIDER" PERSPECTIVE:
+   - "Internal reports suggest..."
+   - "Data from the program review reveals..."
+   - "Industry sources confirm..."
+   - "According to NASA's own analysis..."
+
+5. POWER VOCABULARY:
+   - USE: critical, decisive, strategic, breakthrough, operational, systemic, unprecedented, significant
+   - AVOID: insane, shocking, terrifying, mind-blowing, jaw-dropping, crazy, unbelievable
+
+6. COMPARATIVE CONTEXT:
+   - "That's equivalent to..." (meaningful comparisons)
+   - "For context, Apollo's Saturn V produced..."
+   - "This exceeds Boeing's Starliner by..."
+
+7. RETENTION THROUGH SUBSTANCE:
+   - "The next data point is critical..."
+   - "Here's where the analysis gets interesting..."
+   - "This metric reveals the underlying trend..."
 
 STYLE:
-- High energy, conversational, like telling your friend the CRAZIEST news ever
-- You're EXCITED about this!
-- Make the viewer feel like they're part of something BIG
-- Keep them on the edge of their seat
+- Authoritative but accessible
+- Data-rich, not emotion-rich
+- Urgent through implications, not hyperbole
+- Position viewer as an informed insider
 
 Format your response as JSON:
 {
   "phaseId": "${phaseId}",
-  "content": "The full HYPE script text for this phase...",
+  "content": "The full HIGH-SIGNAL script text for this phase...",
   "wordCount": ${targetWords},
-  "powerPhrasesUsed": ["insane", "shocking", "game-changing"],
-  "retentionHooks": ["But wait...", "Here's the crazy part..."]
+  "criticalMetrics": ["metric 1", "metric 2"],
+  "sourcingPhrases": ["The data shows...", "Reports confirm..."],
+  "retentionAnchors": ["Here's the critical factor...", "This reveals..."]
 }`;
 }
 
@@ -640,7 +673,7 @@ function buildExpandPromptHype(
   targetWords: number,
   scriptingContext: string
 ): string {
-  return `You are the HYPE SCRIBE for "Go For Powered Descent" (GFPD) YouTube channel!
+  return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) YouTube channel.
 
 ${scriptingContext}
 
@@ -654,20 +687,30 @@ TARGET: ${targetWords} words (need ${targetWords - currentWords} more words)
 ---
 
 YOUR TASK:
-Expand the content with MORE HYPE by adding:
-- More SHOCKING revelations and data points
-- Additional "wait, WHAT?!" moments
-- Dramatic comparisons that blow minds
-- Historical parallels framed as DRAMA
-- More power phrases: insane, game-changing, terrifying
+Expand the content with MORE SIGNAL by adding:
+- Additional hardware metrics or budget figures
+- Deeper comparative analysis (historical parallels, competitor comparisons)
+- Extended strategic implications with supporting data
+- Industry context from documented sources
+- Timeline analysis with specific dates
 
-Maintain the VIRAL style: High energy, exclamatory, full of emotion!
+EXPANSION RULES:
+- Every new paragraph must include at least ONE specific data point
+- Use "Insider" framing: "Industry analysts note," "Program data reveals"
+- Maintain authoritative tone - no emotional fluff
+- Add substance, not superlatives
+
+AVOID adding:
+- Emotional exclamations ("Can you believe that?!")
+- Fluff adjectives ("absolutely insane", "mind-blowing")
+- Unsourced speculation
 
 Return the expanded content as JSON:
 {
-  "expandedContent": "Full expanded HYPE text...",
+  "expandedContent": "Full expanded HIGH-SIGNAL text...",
   "wordCount": ${targetWords},
-  "addedDrama": ["dramatic addition 1", "shocking revelation 2"]
+  "addedMetrics": ["specific metric 1", "budget figure 2"],
+  "addedContext": ["historical parallel", "competitive comparison"]
 }`;
 }
 

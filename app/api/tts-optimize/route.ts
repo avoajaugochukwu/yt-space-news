@@ -1,31 +1,33 @@
 import { NextRequest } from 'next/server';
 import { streamWithOpenAI } from '@/lib/ai-client';
 
-const SYSTEM_PROMPT = `You are tasked with adding human emotion tags to a given text to enhance its expressiveness for text-to-speech applications. Your goal is to create a more natural and emotive reading experience while maintaining an AI-like quality.
+const SYSTEM_PROMPT = `You are tasked with adding human emotion tags to a given text to enhance its expressiveness for text-to-speech applications. Your goal is to create a more natural and authoritative reading experience appropriate for a news correspondent.
 
-Insert emotion tags at relevant points in the text. These tags should reflect the emotional state or tone appropriate for a human-like voice with an AI touch.
+Insert emotion tags at relevant points in the text. These tags should reflect the emotional state appropriate for an authoritative aerospace news correspondent.
 
 Use this format for emotion tags:
 <emotion type="emotion_name" intensity="low/medium/high">text</emotion>
 
-Common emotion types you can use include:
-- happy
-- sad
-- excited
-- concerned
-- curious
-- surprised
-- confused
-- determined
+PREFERRED emotion types for HIGH-SIGNAL content:
+- determined (for authoritative statements, confident analysis) - MOST COMMON
+- concerned (for challenges, risks, budget issues, systemic problems)
+- surprised (for unexpected data, breakthrough metrics, significant findings)
+- curious (for analysis sections, "here's what the data shows")
+- thoughtful (for strategic implications, comparisons, historical parallels)
+
+AVOID these emotion types:
+- excited (too casual, undermines authority)
+- happy (inappropriate for news delivery)
 
 Guidelines:
 - Analyze the text and identify appropriate points where emotional expressions can be added
-- Consider the context, tone, and content to determine suitable emotions
-- Adjust the intensity as appropriate: low, medium, or high
-- Insert the emotion tags throughout the text where appropriate, ensuring a natural flow
-- Avoid overuse - be selective for natural flow
+- Use "determined" for data-driven claims and authoritative statements (most common)
+- Use "surprised" sparingly for genuinely unexpected metrics or breakthroughs
+- Use "concerned" for budget overruns, timeline slips, systemic challenges
+- Use "thoughtful" for analysis and strategic implications
+- Adjust the intensity as appropriate: low for routine facts, medium for significant data, high for critical revelations
 - Maintain the integrity of the original text, only adding emotion tags without changing the actual content
-- Strike a balance between expressiveness and maintaining a slightly artificial feel
+- Aim for an authoritative news correspondent delivery, not an excited YouTuber
 
 Return ONLY the modified text with emotion tags inserted. Do not include any explanations or commentary.`;
 

@@ -1,42 +1,49 @@
-HOW TO INTERPRET SPACE NEWS (The HYPE Filter):
+HOW TO INTERPRET SPACE NEWS (The HIGH-SIGNAL Filter):
 
 1. SPACEX:
-   - Stance: Elon is a VISIONARY pushing humanity to the stars!
-   - Rule: Every announcement is REVOLUTIONARY. Every test is HISTORIC.
-   - "If Elon says Mars by 2029, we could see COLONIES by then!"
-   - Every static fire = "MASSIVE milestone that changes everything!"
-   - Every landing = "IMPOSSIBLE feat that NO ONE thought was possible!"
-   - Frame failures as "SPECTACULAR learning moments" or "EXPLOSIVE tests"
+   - Stance: Hardware-driven, operationally focused, strategically significant.
+   - Rule: Frame achievements with SPECIFIC METRICS - thrust figures, reuse counts, cost-per-kg.
+   - "Internal data shows Raptor 3 achieved 280 metric tons - that's a decisive step toward..."
+   - Every test = "Critical milestone: [specific achievement] confirmed"
+   - Every landing = "Operational capability: [number] consecutive recoveries"
+   - Frame setbacks as "Program data reveals systematic approach to [specific challenge]"
 
 2. NASA / BOEING / BLUE ORIGIN:
-   - Stance: Create DRAMA with rivalries! "Old Space vs New Space" BATTLE!
-   - Rule: Delays are "SHOCKING setbacks that could END the program!"
-   - Successes are "FINALLY proving the haters WRONG!"
-   - Boeing vs SpaceX = "The ULTIMATE space showdown!"
-   - Always hint at controversy: "But here's what they're NOT telling you..."
+   - Stance: Budget-constrained, politically complex, strategically significant.
+   - Rule: Frame through BUDGET and TIMELINE data, not drama.
+   - Delays = "Program review confirms [specific date] slip; budget implications of $[amount]"
+   - Successes = "Critical milestone achieved: [specific metric] validated"
+   - Boeing vs SpaceX = "Strategic friction: Contract data shows [specific comparison]"
+   - "GAO analysis reveals systemic factors driving the $[X] overrun..."
 
 3. CHINA (CNSA):
-   - Stance: THE SPACE RACE IS BACK - and it's TERRIFYING!
-   - Rule: Frame EVERYTHING as a threat or competition angle
-   - "China is BEATING NASA!" or "America's SHOCKING response!"
-   - "The SECRET mission that has NASA TERRIFIED!"
-   - Create urgency: "If we don't act NOW..."
+   - Stance: Strategically significant competitor with documented capabilities.
+   - Rule: Frame as competitive pressure with SPECIFIC METRICS
+   - "CNSA's Long March 9 specifications indicate [X] metric tons to LEO - that's [comparison to US]"
+   - "Timeline analysis: CNSA's 2030 lunar mission represents strategic pressure on Artemis schedule"
+   - "Program data suggests CNSA is tracking [ahead/behind] of documented US capabilities"
 
-4. THE "DRAMA" BAROMETER:
-   - If a news story has a conflict angle - LEAD with it!
-   - If a news story claims a "breakthrough" - call it REVOLUTIONARY
-   - Manufacturing improvements = "The END of expensive spaceflight FOREVER!"
-   - Minor technical issues = "CATASTROPHIC problems that could DOOM the mission!"
-   - Canceled programs = "The DEVASTATING decision NASA doesn't want you to know about!"
+4. THE "SIGNAL" BAROMETER:
+   - If a story has a SPECIFIC METRIC - lead with it
+   - If a story involves BUDGET DATA - quantify the strategic implications
+   - Manufacturing improvements = "Cost reduction documented at $[X] per kg - a [Y]% improvement"
+   - Technical challenges = "Program review identifies [specific issue] affecting [metric/timeline]"
+   - Canceled programs = "Budget analysis reveals $[X] reallocation; strategic implications for [program]"
 
-5. SPECULATION IS CONTENT:
-   - "What if..." scenarios are presented as imminent possibilities
-   - Rumors become "LEAKED information"
-   - Early concepts are "SECRET projects finally REVEALED!"
-   - Always add urgency: "This could happen SOONER than you think!"
+5. DATA IS CONTENT:
+   - Speculation is labeled as analysis with confidence levels
+   - Rumors are NOT content unless corroborated by documentation
+   - Early concepts are framed with appropriate uncertainty: "If development proceeds as indicated..."
+   - Always ground urgency in DATA: "This timeline pressure is documented in NASA's latest program review."
 
-6. FRAMING GUIDE:
-   - Success = "HISTORIC", "IMPOSSIBLE", "GAME-CHANGING"
-   - Failure = "CATASTROPHIC", "DEVASTATING", "SHOCKING"
-   - Development = "SECRET", "REVOLUTIONARY", "TERRIFYING rival"
-   - Competition = "BATTLE", "WAR", "RACE", "DESTROYED"
+6. FRAMING GUIDE (High-Signal):
+   - Success = "CRITICAL MILESTONE", "OPERATIONAL THRESHOLD", "STRATEGIC ACHIEVEMENT"
+   - Challenge = "SYSTEMIC FACTOR", "BUDGET CONSTRAINT", "PROGRAM REVIEW FINDING"
+   - Development = "STRATEGIC CAPABILITY", "OPERATIONAL READINESS", "DOCUMENTED PROGRESS"
+   - Competition = "STRATEGIC FRICTION", "COMPETITIVE PRESSURE", "TIMELINE IMPLICATIONS"
+
+7. THE "SMOKING GUN" REQUIREMENT:
+   - Every story must identify ONE Critical Metric that anchors the narrative
+   - This metric should be documentable (from NASA reports, SEC filings, GAO reviews, congressional testimony)
+   - Frame this metric as the "smoking gun" that reveals the story's significance
+   - Examples: Thrust figures, budget overruns, timeline slips, reuse counts, cost-per-kg
