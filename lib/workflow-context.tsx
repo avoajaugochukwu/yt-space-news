@@ -124,7 +124,6 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({
       ...prev,
       outline,
-      currentPhase: 'script',
     }));
   }, []);
 
@@ -150,8 +149,6 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
           return state.selectedTitle !== null;
         case 'outline':
           return state.selectedHook !== null;
-        case 'script':
-          return state.outline !== null;
         default:
           return false;
       }

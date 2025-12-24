@@ -16,10 +16,9 @@ const PHASE_LABELS: Record<WorkflowPhase, string> = {
   packaging: 'Strategic Packaging',
   hook: 'Hook Generator',
   outline: 'Script Outline',
-  script: 'Script Writer',
 };
 
-const PHASE_ORDER: WorkflowPhase[] = ['radar', 'briefing', 'packaging', 'hook', 'outline', 'script'];
+const PHASE_ORDER: WorkflowPhase[] = ['radar', 'briefing', 'packaging', 'hook', 'outline'];
 
 export default function Home() {
   const {
@@ -81,7 +80,6 @@ export default function Home() {
         );
 
       case 'outline':
-      case 'script':
         if (!selectedStory || !selectedHook) return null;
         return (
           <ScriptWriter

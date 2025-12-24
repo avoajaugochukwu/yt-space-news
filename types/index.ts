@@ -139,8 +139,7 @@ export type WorkflowPhase =
   | 'briefing'
   | 'packaging'
   | 'hook'
-  | 'outline'
-  | 'script';
+  | 'outline';
 
 export interface WorkflowState {
   currentPhase: WorkflowPhase;
