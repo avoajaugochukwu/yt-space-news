@@ -166,6 +166,19 @@ export interface ApiError {
   retryable: boolean;
 }
 
+// YouTube Rewriter Types
+export interface RewriteResult {
+  originalTranscript: string;
+  rewrittenScript: string;
+  wordCount: number;
+  improvedTitles: string[];
+  videoInfo: {
+    title: string;
+    channel: string;
+    videoId: string;
+  };
+}
+
 // Power Phrases for Maximum Hype (USE THESE!)
 export const POWER_PHRASES = [
   'insane',

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useWorkflow } from '@/lib/workflow-context';
 import { RadarDashboard } from '@/components/radar/RadarDashboard';
 import { BriefingView } from '@/components/scribe/BriefingView';
@@ -111,6 +112,12 @@ export default function Home() {
               </span>
             </div>
             <div className="flex items-center gap-3">
+              <Link
+                href="/youtube-rewriter"
+                className="font-mono text-xs px-3 py-1.5 border border-[var(--border)] rounded-md text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] transition-all uppercase tracking-wider"
+              >
+                YT Rewriter
+              </Link>
               <ModeToggle />
               <ActionButton variant="ghost" size="sm" onClick={reset}>
                 Reset Workflow

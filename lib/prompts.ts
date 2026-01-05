@@ -1,5 +1,5 @@
 // Prompt templates for the GFPD Content Engine - Mode-aware version
-import type { ContentMode } from './settings-context';
+import type { ContentMode } from "./settings-context";
 
 // ========== RADAR SEARCH PROMPTS ==========
 
@@ -102,13 +102,18 @@ Format your response as JSON with the following structure:
 Prioritize stories with concrete hardware developments over announcements or speculation.`;
 }
 
-export function buildRadarSearchPrompt(mode: ContentMode = 'hype'): string {
-  return mode === 'hype' ? buildRadarSearchPromptHype() : buildRadarSearchPromptLowkey();
+export function buildRadarSearchPrompt(mode: ContentMode = "hype"): string {
+  return mode === "hype"
+    ? buildRadarSearchPromptHype()
+    : buildRadarSearchPromptLowkey();
 }
 
 // ========== PACKAGING PROMPTS ==========
 
-function buildPackagingPromptHype(story: string, packagingContext: string): string {
+function buildPackagingPromptHype(
+  story: string,
+  packagingContext: string
+): string {
   return `You are the Lead Packaging Editor for "Go For Powered Descent" (GFPD) YouTube channel - we break aerospace stories with authority and data.
 
 ${packagingContext}
@@ -168,7 +173,10 @@ Format your response as JSON:
 }`;
 }
 
-function buildPackagingPromptLowkey(story: string, packagingContext: string): string {
+function buildPackagingPromptLowkey(
+  story: string,
+  packagingContext: string
+): string {
   return `You are the packaging specialist for "Go For Powered Descent" (GFPD) YouTube channel - a space news channel.
 
 ${packagingContext}
@@ -230,15 +238,23 @@ Format your response as JSON:
 }`;
 }
 
-export function buildPackagingPrompt(story: string, packagingContext: string, mode: ContentMode = 'hype'): string {
-  return mode === 'hype'
+export function buildPackagingPrompt(
+  story: string,
+  packagingContext: string,
+  mode: ContentMode = "hype"
+): string {
+  return mode === "hype"
     ? buildPackagingPromptHype(story, packagingContext)
     : buildPackagingPromptLowkey(story, packagingContext);
 }
 
 // ========== HOOK PROMPTS ==========
 
-function buildHookPromptHype(story: string, selectedTitle: string, scriptingContext: string): string {
+function buildHookPromptHype(
+  story: string,
+  selectedTitle: string,
+  scriptingContext: string
+): string {
   return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) - delivering urgent, data-driven space news.
 
 ${scriptingContext}
@@ -304,7 +320,11 @@ Format your response as JSON:
 }`;
 }
 
-function buildHookPromptLowkey(story: string, selectedTitle: string, scriptingContext: string): string {
+function buildHookPromptLowkey(
+  story: string,
+  selectedTitle: string,
+  scriptingContext: string
+): string {
   return `You are the hook writer for "Go For Powered Descent" (GFPD) YouTube channel.
 
 ${scriptingContext}
@@ -359,15 +379,24 @@ Format your response as JSON:
 }`;
 }
 
-export function buildHookPrompt(story: string, selectedTitle: string, scriptingContext: string, mode: ContentMode = 'hype'): string {
-  return mode === 'hype'
+export function buildHookPrompt(
+  story: string,
+  selectedTitle: string,
+  scriptingContext: string,
+  mode: ContentMode = "hype"
+): string {
+  return mode === "hype"
     ? buildHookPromptHype(story, selectedTitle, scriptingContext)
     : buildHookPromptLowkey(story, selectedTitle, scriptingContext);
 }
 
 // ========== OUTLINE PROMPTS ==========
 
-function buildOutlinePromptHype(story: string, hook: string, scriptingContext: string): string {
+function buildOutlinePromptHype(
+  story: string,
+  hook: string,
+  scriptingContext: string
+): string {
   return `You are the Lead Aerospace Correspondent for "Go For Powered Descent" (GFPD) YouTube channel.
 
 ${scriptingContext}
@@ -438,7 +467,11 @@ Format your response as JSON:
 }`;
 }
 
-function buildOutlinePromptLowkey(story: string, hook: string, scriptingContext: string): string {
+function buildOutlinePromptLowkey(
+  story: string,
+  hook: string,
+  scriptingContext: string
+): string {
   return `You are the script architect for "Go For Powered Descent" (GFPD) YouTube channel.
 
 ${scriptingContext}
@@ -501,9 +534,9 @@ export function buildOutlinePrompt(
   story: string,
   hook: string,
   scriptingContext: string,
-  mode: ContentMode = 'hype'
+  mode: ContentMode = "hype"
 ): string {
-  return mode === 'hype'
+  return mode === "hype"
     ? buildOutlinePromptHype(story, hook, scriptingContext)
     : buildOutlinePromptLowkey(story, hook, scriptingContext);
 }
@@ -531,12 +564,16 @@ ${outline}
 PHASE TO WRITE: ${phaseName} (${phaseId})
 
 KEY POINTS TO COVER:
-${keyPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}
+${keyPoints.map((p, i) => `${i + 1}. ${p}`).join("\n")}
 
 TARGET WORD COUNT: ${targetWords} words
 
-${previousContent ? `PREVIOUS CONTENT (for continuity):
-${previousContent}` : ''}
+${
+  previousContent
+    ? `PREVIOUS CONTENT (for continuity):
+${previousContent}`
+    : ""
+}
 
 ---
 
@@ -619,12 +656,16 @@ ${outline}
 PHASE TO WRITE: ${phaseName} (${phaseId})
 
 KEY POINTS TO COVER:
-${keyPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}
+${keyPoints.map((p, i) => `${i + 1}. ${p}`).join("\n")}
 
 TARGET WORD COUNT: ${targetWords} words
 
-${previousContent ? `PREVIOUS CONTENT (for continuity):
-${previousContent}` : ''}
+${
+  previousContent
+    ? `PREVIOUS CONTENT (for continuity):
+${previousContent}`
+    : ""
+}
 
 ---
 
@@ -658,11 +699,27 @@ export function buildScriptPhasePrompt(
   targetWords: number,
   previousContent: string,
   scriptingContext: string,
-  mode: ContentMode = 'hype'
+  mode: ContentMode = "hype"
 ): string {
-  return mode === 'hype'
-    ? buildScriptPhasePromptHype(outline, phaseId, phaseName, keyPoints, targetWords, previousContent, scriptingContext)
-    : buildScriptPhasePromptLowkey(outline, phaseId, phaseName, keyPoints, targetWords, previousContent, scriptingContext);
+  return mode === "hype"
+    ? buildScriptPhasePromptHype(
+        outline,
+        phaseId,
+        phaseName,
+        keyPoints,
+        targetWords,
+        previousContent,
+        scriptingContext
+      )
+    : buildScriptPhasePromptLowkey(
+        outline,
+        phaseId,
+        phaseName,
+        keyPoints,
+        targetWords,
+        previousContent,
+        scriptingContext
+      );
 }
 
 // ========== EXPAND PROMPTS ==========
@@ -756,9 +813,112 @@ export function buildExpandPrompt(
   currentWords: number,
   targetWords: number,
   scriptingContext: string,
-  mode: ContentMode = 'hype'
+  mode: ContentMode = "hype"
 ): string {
-  return mode === 'hype'
-    ? buildExpandPromptHype(content, currentWords, targetWords, scriptingContext)
-    : buildExpandPromptLowkey(content, currentWords, targetWords, scriptingContext);
+  return mode === "hype"
+    ? buildExpandPromptHype(
+        content,
+        currentWords,
+        targetWords,
+        scriptingContext
+      )
+    : buildExpandPromptLowkey(
+        content,
+        currentWords,
+        targetWords,
+        scriptingContext
+      );
+}
+
+// ========== YOUTUBE REWRITE PROMPT ==========
+
+export function buildYouTubeRewritePrompt(
+  transcript: string,
+  videoTitle: string
+): string {
+  return `You are a professional script editor for a high-quality space news channel. Your goal is to rewrite the provided script to be clearer, punchier, and optimized for Text-to-Speech (TTS) delivery, while keeping the exact same length and meaning.
+
+VIDEO TITLE: ${videoTitle}
+
+ORIGINAL TRANSCRIPT:
+${transcript}
+
+---
+
+### INSTRUCTIONS
+
+1. **RETAIN MEANING & LENGTH:** The rewritten script must convey the exact same information and arguments. It must be within 10% of the original word count.
+2. **BROADCAST STYLE:** Write in short, declarative sentences (Subject-Verb-Object). This prevents the robotic "monotone" effect in TTS engines.
+3. **SIMPLIFY COMPLEXITY:** Explain technical concepts (like "ablative material" or "skip-entry") simply, but do not remove the technical details.
+4. **TTS OPTIMIZATION:**
+   - Do not use symbols or markdown (no bold, no italics).
+   - Write out difficult numbers if they might be misread (e.g., instead of "Artemis II", write "Artemis 2").
+   - Use standard punctuation to control the pacing (commas and periods).
+5. **FACTUAL INTEGRITY:** You may clarify facts, but do not invent new data. If the original says "$4.1 billion," you must use that figure.
+
+### VOICE AND TONE
+- **Tone:** Authoritative, Objective, Trusted News.
+- **Reading Level:** 8th Grade (The New York Times style).
+- **Structure:** Break up long, winding sentences into two shorter sentences.
+
+### EXAMPLES
+
+**Original:** "The heat shield showed unexpected charring and erosion in more than 100 locations where material that should have ablated smoothly instead cracked."
+**Rewrite:** "The heat shield was burned and cracked in over 100 spots. The material was supposed to burn away smoothly, but it broke apart instead."
+
+**Original:** "This architecture cannot sustain a lunar program because simple math makes that clear."
+**Rewrite:** "This design cannot support a real moon program. The math is simple."
+
+**Original:** "SpaceX’s Starship program follows a different model."
+**Rewrite:** "SpaceX handles their Starship program differently."
+
+### OUTPUT
+Provide ONLY the raw text of the rewritten script. Do not include titles, scene descriptions, or intro notes. Start directly with the first sentence.`;
+}
+
+// ========== YOUTUBE TITLE IMPROVEMENT PROMPT ==========
+
+export function buildYouTubeTitlePrompt(
+  originalTitle: string,
+  transcriptSummary: string
+): string {
+  return `You are a YouTube title specialist for a space news channel. Generate 3 improved title options for this video.
+
+ORIGINAL TITLE: ${originalTitle}
+
+CONTENT SUMMARY (first 500 words of transcript):
+${transcriptSummary}
+
+---
+
+### TITLE GUIDELINES
+
+1. **LENGTH:** Under 60 characters (YouTube truncates longer titles)
+2. **STYLE:** News headline format - clear, direct, informative
+3. **HOOK:** Create a "Curiosity Gap" - make viewers want to know more
+4. **NO CLICKBAIT:** Avoid "You Won't Believe", "SHOCKING", "INSANE" etc.
+5. **FACTUAL:** Title must accurately reflect the content
+
+### GOOD TITLE PATTERNS
+- "[Company] Just [Specific Action] - Here's Why It Matters"
+- "The Real Reason [Event] Is [Consequence]"
+- "[Number] Problems With [Subject] NASA Won't Talk About"
+- "How [Company]'s [Technology] Changes [Industry/Mission]"
+- "[Subject]: What [Data Point] Tells Us"
+
+### EXAMPLES
+- BAD: "INSANE! NASA's SHOCKING Moon Mission Update!"
+- GOOD: "NASA's Artemis 2 Faces a Heat Shield Problem"
+
+- BAD: "You Won't Believe What SpaceX Just Did"
+- GOOD: "SpaceX Starship: Why It's Replacing SLS"
+
+- BAD: "The TRUTH About NASA They Don't Want You to Know"
+- GOOD: "Why Each SLS Launch Costs $4.1 Billion"
+
+### OUTPUT FORMAT
+Return ONLY a JSON array with exactly 3 title strings:
+["Title Option 1", "Title Option 2", "Title Option 3"]
+
+No explanations, no numbering, just the JSON array.`;
 }
