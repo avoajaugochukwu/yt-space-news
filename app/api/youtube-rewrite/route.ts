@@ -43,25 +43,38 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ videoUrl }),
     });
 
-    if (!lambdaResponse.ok) {
+    const lambdaData = await lambdaResponse.json();
+    console.log('Lambda response:', JSON.stringify(lambdaData, null, 2));
+
+    // Handle Lambda response format: { statusCode, headers, body }
+    // The body is a JSON string that needs to be parsed
+    let transcript: string | undefined;
+
+    if (lambdaData.statusCode && lambdaData.statusCode !== 200) {
       return NextResponse.json(
         { error: 'Failed to fetch transcript from video' },
-        { status: lambdaResponse.status }
+        { status: lambdaData.statusCode }
       );
     }
 
-    const lambdaData = await lambdaResponse.json();
-    const parsedBody =
-      typeof lambdaData.body === 'string' ? JSON.parse(lambdaData.body) : lambdaData.body;
+    if (lambdaData.body) {
+      // Lambda response format - body is a JSON string
+      const parsedBody =
+        typeof lambdaData.body === 'string' ? JSON.parse(lambdaData.body) : lambdaData.body;
+      transcript = parsedBody?.transcript;
+    } else if (lambdaData.transcript) {
+      // Direct response format
+      transcript = lambdaData.transcript;
+    }
 
-    if (!parsedBody?.transcript) {
+    if (!transcript) {
       return NextResponse.json(
         { error: 'No transcript available for this video. The video may not have captions enabled.' },
         { status: 404 }
       );
     }
 
-    const fullTranscript = parsedBody.transcript.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+    const fullTranscript = transcript.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
 
     // Build rewrite prompt and generate rewritten script first
     const scriptPrompt = buildYouTubeRewritePrompt(fullTranscript);
