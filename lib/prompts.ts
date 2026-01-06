@@ -832,13 +832,8 @@ export function buildExpandPrompt(
 
 // ========== YOUTUBE REWRITE PROMPT ==========
 
-export function buildYouTubeRewritePrompt(
-  transcript: string,
-  videoTitle: string
-): string {
+export function buildYouTubeRewritePrompt(transcript: string): string {
   return `You are a professional script editor for a high-quality space news channel. Your goal is to rewrite the provided script to be clearer, punchier, and optimized for Text-to-Speech (TTS) delivery, while keeping the exact same length and meaning.
-
-VIDEO TITLE: ${videoTitle}
 
 ORIGINAL TRANSCRIPT:
 ${transcript}
@@ -876,18 +871,16 @@ ${transcript}
 Provide ONLY the raw text of the rewritten script. Do not include titles, scene descriptions, or intro notes. Start directly with the first sentence.`;
 }
 
-// ========== YOUTUBE TITLE IMPROVEMENT PROMPT ==========
+// ========== YOUTUBE TITLE GENERATION PROMPT ==========
 
-export function buildYouTubeTitlePrompt(
-  originalTitle: string,
-  transcriptSummary: string
-): string {
-  return `You are a YouTube title specialist for a space news channel. Generate 3 improved title options for this video.
+export function buildYouTubeTitlePrompt(scriptContent: string): string {
+  // Use a summary of the script (first ~500 words) for title generation
+  const scriptSummary = scriptContent.split(/\s+/).slice(0, 500).join(' ');
 
-ORIGINAL TITLE: ${originalTitle}
+  return `You are a YouTube title specialist for a space news channel. Generate 3 title options for this video based on its script content.
 
-CONTENT SUMMARY (first 500 words of transcript):
-${transcriptSummary}
+SCRIPT CONTENT:
+${scriptSummary}
 
 ---
 

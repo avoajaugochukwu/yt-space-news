@@ -172,11 +172,6 @@ export interface RewriteResult {
   rewrittenScript: string;
   wordCount: number;
   improvedTitles: string[];
-  videoInfo: {
-    title: string;
-    channel: string;
-    videoId: string;
-  };
 }
 
 // Power Phrases for Maximum Hype (USE THESE!)

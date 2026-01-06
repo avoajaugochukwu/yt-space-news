@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client } from 'youtubei';
 import { generateWithClaude, parseJsonResponse } from '@/lib/ai-client';
 import { buildYouTubeRewritePrompt, buildYouTubeTitlePrompt } from '@/lib/prompts';
+
+const TRANSCRIPT_LAMBDA_URL =
+  'https://bepu4kbnoghbb2kx5tjfi7duom0mofcd.lambda-url.us-west-2.on.aws/';
 
 // Extract video ID from various YouTube URL formats
 function extractVideoId(url: string): string | null {
@@ -30,53 +32,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid YouTube URL format' }, { status: 400 });
     }
 
-    // Initialize youtubei client
-    const youtube = new Client();
+    // Fetch transcript from Lambda
+    const videoUrl = url.trim().startsWith('http')
+      ? url.trim()
+      : `https://www.youtube.com/watch?v=${videoId}`;
 
-    // Fetch video info
-    const video = await youtube.getVideo(videoId);
-    if (!video) {
-      return NextResponse.json({ error: 'Could not fetch video information' }, { status: 404 });
+    const lambdaResponse = await fetch(TRANSCRIPT_LAMBDA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoUrl }),
+    });
+
+    if (!lambdaResponse.ok) {
+      return NextResponse.json(
+        { error: 'Failed to fetch transcript from video' },
+        { status: lambdaResponse.status }
+      );
     }
 
-    // Get transcript using captions API
-    let captions;
-    if (video.captions) {
-      // Try English first, then fall back to first available language
-      captions = await video.captions.get('en');
-      if (!captions && video.captions.languages.length > 0) {
-        const firstLang = video.captions.languages[0];
-        captions = await video.captions.get(firstLang.code);
-      }
-    }
+    const lambdaData = await lambdaResponse.json();
+    const parsedBody =
+      typeof lambdaData.body === 'string' ? JSON.parse(lambdaData.body) : lambdaData.body;
 
-    if (!captions || captions.length === 0) {
+    if (!parsedBody?.transcript) {
       return NextResponse.json(
         { error: 'No transcript available for this video. The video may not have captions enabled.' },
         { status: 404 }
       );
     }
 
-    // Combine caption segments into full transcript text
-    const fullTranscript = captions
-      .map((segment) => segment.text)
-      .join(' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+    const fullTranscript = parsedBody.transcript.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Build prompts
-    const scriptPrompt = buildYouTubeRewritePrompt(fullTranscript, video.title || 'Untitled Video');
-    const transcriptSummary = fullTranscript.split(/\s+/).slice(0, 500).join(' ');
-    const titlePrompt = buildYouTubeTitlePrompt(video.title || 'Untitled Video', transcriptSummary);
-
+    // Build rewrite prompt and generate rewritten script first
+    const scriptPrompt = buildYouTubeRewritePrompt(fullTranscript);
     const scriptSystemPrompt = `You are an expert script rewriter who creates completely original content while preserving meaning. You never plagiarize - every sentence you write is uniquely phrased. Your rewrites are natural, engaging, and suitable for YouTube video delivery.`;
-    const titleSystemPrompt = `You are a YouTube title specialist. Return only valid JSON arrays.`;
 
-    // Call Claude for both script rewrite and title improvement in parallel
-    const [rewrittenScript, titleResponse] = await Promise.all([
-      generateWithClaude(scriptPrompt, scriptSystemPrompt),
-      generateWithClaude(titlePrompt, titleSystemPrompt),
-    ]);
+    const rewrittenScript = await generateWithClaude(scriptPrompt, scriptSystemPrompt);
+
+    // Generate titles based on the rewritten script
+    const titlePrompt = buildYouTubeTitlePrompt(rewrittenScript);
+    const titleSystemPrompt = `You are a YouTube title specialist. Return only valid JSON arrays.`;
+    const titleResponse = await generateWithClaude(titlePrompt, titleSystemPrompt);
 
     // Parse improved titles from JSON response
     let improvedTitles: string[] = [];
@@ -95,11 +91,6 @@ export async function POST(request: NextRequest) {
       rewrittenScript,
       wordCount: rewrittenScript.split(/\s+/).filter((w) => w.length > 0).length,
       improvedTitles,
-      videoInfo: {
-        title: video.title || 'Untitled',
-        channel: video.channel?.name || 'Unknown Channel',
-        videoId,
-      },
     });
   } catch (error) {
     console.error('YouTube rewrite error:', error);

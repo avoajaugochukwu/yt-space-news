@@ -113,16 +113,7 @@ export function YouTubeRewriter() {
         {/* Results */}
         {result && (
           <div className="space-y-4">
-            {/* Video Info */}
-            <div className="p-4 bg-[var(--background)] rounded-md border border-[var(--border)]">
-              <h4 className="text-xs font-mono text-[var(--accent)] uppercase tracking-wider mb-2">
-                Original Title
-              </h4>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{result.videoInfo.title}</p>
-              <p className="text-xs text-[var(--foreground-muted)]">{result.videoInfo.channel}</p>
-            </div>
-
-            {/* Improved Titles */}
+            {/* Generated Titles */}
             {result.improvedTitles && result.improvedTitles.length > 0 && (
               <div className="p-4 bg-[var(--background)] rounded-md border border-[var(--border)]">
                 <h4 className="text-xs font-mono text-[var(--accent)] uppercase tracking-wider mb-3">
@@ -146,7 +137,7 @@ export function YouTubeRewriter() {
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-[var(--background)] rounded-md border border-[var(--border)]">
                 <div className="text-xs font-mono text-[var(--foreground-muted)] uppercase tracking-wider">
                   Rewritten
@@ -158,12 +149,6 @@ export function YouTubeRewriter() {
                   Original
                 </div>
                 <div className="text-lg font-mono text-[var(--foreground)]">{originalWordCount} words</div>
-              </div>
-              <div className="p-3 bg-[var(--background)] rounded-md border border-[var(--border)]">
-                <div className="text-xs font-mono text-[var(--foreground-muted)] uppercase tracking-wider">
-                  Video ID
-                </div>
-                <div className="text-sm font-mono text-[var(--foreground)] truncate">{result.videoInfo.videoId}</div>
               </div>
             </div>
 
