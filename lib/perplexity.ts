@@ -66,6 +66,8 @@ export interface AccuracyIssue {
     | 'ear'
     | 'branding'
     | 'engagement'
+    | 'persona'
+    | 'lead'
     | 'other';
   quote: string;
   fix: string;
@@ -86,28 +88,32 @@ export interface RewriteOutcome {
 }
 
 function buildRewritePrompt(originalTranscript: string, title: string): string {
-  return `You are rewriting a YouTube narration script. The goal is a clean, original, narration-ready script that preserves all factual content from the source but is reworded so it does not plagiarize the original.
+  return `IDENTIFICATION:
+You are an Editor at a Global Aerospace News Bureau. You are converting a personal, first-person vlog transcript into a professional, objective, faceless news report for "we go for powered descent". Treat the source as raw field reporting, not as voice to imitate.
 
-ORIGINAL VIDEO TITLE: ${title}
+ORIGINAL VIDEO TITLE (for context only — do not echo): ${title}
 
-REQUIREMENTS:
-1. Preserve every factual claim, name, quote attribution, statistic, and chronology from the source. Do not invent new facts.
-2. Rewrite every sentence in your own words. No phrase longer than 4 consecutive words may be reused verbatim from the source.
-3. Write for the ear, not the page. Short, spoken-rhythm sentences. Use contractions ("we're", "it's", "they've"). Avoid parenthetical asides, semicolons, em-dashes, bullet points, lists, headings, or anything that would only make sense if a reader could see it. No "as you can see", "in this article", "above", "below", "Figure 1". Use plain narrator transitions ("here's the thing", "now", "but wait").
-4. Remove music cues, "[Music]", "[Applause]", "♪", and any non-narrative chatter from the source. Strip every subscribe plea, sponsor read, channel name, host name, and host self-reference from the original — they belong to the source channel and must not appear.
-5. Keep the same overall length and structure as the source.
-6. Spell every proper noun exactly as it appears in the original (e.g. "Artemis", "SpaceX", "Falcon Heavy") — never approximate or shorten a name.
-7. CHANNEL REBRAND: any time the source mentions its own channel by name, host, or "this channel / our channel / on our show / the channel", replace it with "we go for powered descent". Never carry the original channel's branding into the rewrite.
-8. ENGAGEMENT BEATS: weave two short, natural-sounding engagement asides into the script — they must feel like the narrator's voice, not a banner ad.
-   - One near the opening (within the first ~90 seconds of read-aloud time): invite viewers to subscribe to "we go for powered descent" so they don't miss the next breakdown. Tie the ask to the topic (e.g. "if this is the kind of story you want more of, subscribe to we go for powered descent and you'll catch the next one").
-   - One near the middle or end: ask a specific, opinion-bait question tied to the video's actual subject and prompt viewers to drop their take in the comments. Make the question pointed enough that someone has to disagree (e.g. "is this brilliant or reckless? tell me in the comments").
-   - Both asides must be in spoken voice, no markdown, no "[CTA]" labels, no parentheticals.
+CORE DIRECTIVES:
+1. RUTHLESS STRIPPING: Remove every first-person reference ("I", "me", "my", "we" used as the host, "our team", "let me show you"). Remove every personal anecdote (e.g. "I spoke to Elon", "When I was at the Cape", "my favorite part is"). If the source says "I think" or "I believe", convert it to "Analysis suggests" or "The data indicates". The narrator is invisible.
+2. THE NEWS LEAD: Do not start with a hook, a greeting, a question, or a teaser. The first paragraph is a Lead that resolves the five Ws — Who, What, Where, When, Why — and states the strategic significance immediately.
+3. OBJECTIVE REPORTING: Use professional broadcast journalism style (AP / Reuters voice). Mix complex and simple sentences naturally — broadcast cadence, not staccato. Allow flowing clauses, transitions, and analytic asides where they serve the report. Do NOT chop into one-thought-per-line fragments. Contractions are acceptable when they sound natural in broadcast.
+4. FACTUAL ANCHORING: Extract every technical metric, date, name, payload mass, thrust value, orbit, mission ID, and timeline from the source. Where the source uses hype ("the engine is massive", "an absolute monster"), replace it with the underlying engineering data ("the engine produces two hundred and eighty tons of thrust"). Never lose a number; never invent one.
+5. NO CHANNEL LEAKAGE: If the source mentions its own channel name, host name, sponsor, Patreon, merch, or any "this channel / our channel / our show / on this channel" phrasing, delete it. The only reporting entity referenced is "we go for powered descent".
+6. NO SOURCE PLAGIARISM: No run of more than four consecutive words may be reused verbatim from the source. Unique proper nouns (e.g. "Falcon Heavy", "International Space Station") do not count.
+7. NO PRESENTATION ARTIFACTS: No music cues, "[Music]", "[Applause]", "♪", emoji, markdown, bullet lists, headings, or stage directions. The output is broadcast prose only.
+8. PROPER NOUN FIDELITY: Spell every proper noun exactly as it appears in the original (e.g. "Artemis", "SpaceX", "Falcon Heavy") — never approximate or shorten.
+
+STRUCTURE (do not label these sections in the output — write them as continuous broadcast copy):
+- HEADLINE LEAD: The primary news event and its immediate impact, resolving the five Ws in the opening paragraph.
+- THE REPORT: Detailed breakdown of the hardware, mission, policy change, or sequence of events. Anchor every claim in the source's facts.
+- STRATEGIC CONTEXT: What this development means for the broader aerospace landscape — programs affected, schedules shifted, competitive positioning.
+- CLOSING ENGAGEMENT: Exactly one professional call to action at the very end. Use this template, adapted naturally to the topic: "For more deep dives into mission telemetry and aerospace engineering, subscribe to we go for powered descent. How do you view this shift in [topic-specific framing]? Share your analysis in the comments." Replace "[topic-specific framing]" with a concrete reference to the actual story (e.g. "lunar strategy", "Starship's flight cadence", "the Artemis architecture"). This single closing block is the ONLY engagement / subscribe / comment instruction in the script — do not weave any earlier asides.
 
 ${NUMBER_RULES}
 
-Output ONLY the rewritten script. No preamble, no headings, no markdown.
+Output ONLY the rewritten broadcast script. No preamble, no headings, no markdown, no section labels.
 
-ORIGINAL TRANSCRIPT:
+SOURCE TRANSCRIPT FOR CONVERSION:
 """
 ${originalTranscript}
 """`;
@@ -139,14 +145,17 @@ ${accuracy.feedback}
 ${NUMBER_RULES}
 
 GENERAL GUIDELINES (re-check after applying fixes):
+- Faceless aerospace news desk — broadcast cadence (mix of complex and simple sentences), never staccato, never one-thought-per-line.
+- ZERO first-person references. No "I", "me", "my", "we" as the host, "our team", or personal anecdotes. Convert "I think" to "Analysis suggests"; convert "I spoke to" to a third-person attribution.
+- Opening paragraph is a Lead resolving the five Ws and stating strategic significance — no greetings, no hooks, no teaser questions in the lead.
+- Replace hype phrases ("massive", "absolute monster") with the underlying engineering data when the source provides it.
 - Every fact, name, date, number, and quote from the original must be preserved.
 - No remaining digit, %, $, year, decimal, currency, or unit symbol.
 - No proper-noun typos. Spell every name exactly as in the original (e.g. "Artemis", not "Aremis").
 - No run of more than four consecutive words copied from the source.
 - No markdown, music cues, "[Music]", "♪", emoji, or bracketed stage directions.
-- Written for the ear: short spoken-rhythm sentences, contractions, no lists/headings/parentheticals/semicolons, no "as you can see / in this article / above / below".
-- The source channel's name, host, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Never carry the source channel's branding.
-- Two natural-sounding engagement asides must be present: one near the opening inviting viewers to subscribe to "we go for powered descent", and one near the middle or end asking an opinion-bait question tied to the topic and prompting comments. Both must read as the narrator's voice, not as banners.
+- The source channel's name, host, sponsor, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Never carry the source channel's branding.
+- Exactly ONE professional closing call to action at the very end inviting subscription to "we go for powered descent" and posing a topic-specific analytical question for the comments. No opener subscribe aside. No mid-script asides.
 
 ORIGINAL TRANSCRIPT (ground truth for facts):
 """
@@ -162,25 +171,29 @@ Output ONLY the corrected script. No preamble, no headings, no markdown.`;
 }
 
 function buildAccuracyPrompt(rewrittenScript: string, originalTranscript: string): string {
-  return `Audit a rewritten YouTube narration against the original transcript and produce a holistic accuracy score plus a list of concrete defects the editor can fix.
+  return `Audit a rewritten broadcast script against the original transcript. The rewrite is meant to be a faceless aerospace news report for "we go for powered descent" — not a vlog, not a personal narration. Produce a holistic accuracy score plus a list of concrete defects the editor can fix.
 
 CRITERIA — weigh these when assigning the score (use your judgment on severity, do not just count items):
-- Factual fidelity (heaviest): every fact, name, date, number, and quote from the original is preserved. A wrong fact or missing key claim hurts the score sharply. ~40 points.
-- Number spelling: every digit, %, $, year, decimal, currency, or unit symbol must be spelled out as a narrator would say it ("905" -> "nine hundred and five", "1969" -> "nineteen sixty-nine", "$2.5M" -> "two point five million dollars", "47%" -> "forty-seven percent"). Anything still in numeric form is a defect. ~20 points.
-- Original phrasing: no run of more than four consecutive words is copied verbatim from the source. (Unique proper nouns like "Elon Musk" or "International Space Station" do not count.) ~10 points.
-- Written for the ear: short spoken-rhythm sentences, contractions, no markdown, no bullet points, no headings, no parentheticals, no semicolons or em-dashes used as visual punctuation, no "as you can see / in this article / above / below". No music cues, "[Music]", "♪", emoji, or brackets. Proper nouns spelled exactly as in the original. ~15 points.
-- Channel rebrand: the source channel's name, host name, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Original branding leaking through is a "fact" defect. ~5 points.
-- Engagement beats: there must be exactly two natural-sounding spoken asides — one near the opening inviting subscription to "we go for powered descent", and one near the middle or end asking an opinion-bait question and prompting comments. They must sound like the narrator, not a banner. Missing either, or having them feel templated, is a defect. ~10 points.
+- Persona bleed (CRITICAL): the script must contain ZERO first-person references — no "I", "me", "my", "we" used as the host, "our team", or personal anecdotes carried over from the source ("I spoke to Elon", "when I was at the Cape", etc.). If ANY first-person reference or personal anecdote remains, the OVERALL score MUST be below 50. ~25 points.
+- News-lead quality: the opening must read as a Lead — within the first two sentences it must resolve the core five Ws (who, what, where, when, why) and state the strategic significance. Hooks, greetings, teasers, or rhetorical questions in the lead are defects. ~10 points.
+- Factual fidelity (heaviest): every fact, name, date, number, and quote from the original is preserved. A wrong fact or missing key claim hurts the score sharply. Hype phrases ("massive", "absolute monster") with no underlying engineering data substituted in count as a fact defect. ~25 points.
+- Number spelling: every digit, %, $, year, decimal, currency, or unit symbol must be spelled out as a narrator would say it ("905" -> "nine hundred and five", "1969" -> "nineteen sixty-nine", "$2.5M" -> "two point five million dollars", "47%" -> "forty-seven percent"). Anything still in numeric form is a defect. ~10 points.
+- Original phrasing: no run of more than four consecutive words is copied verbatim from the source. (Unique proper nouns like "Elon Musk" or "International Space Station" do not count.) ~5 points.
+- Broadcast prosody (NOT staccato): natural broadcast cadence — a mix of complex and simple sentences. Robotic one-thought-per-line fragments, every-sentence-the-same-length rhythm, or telegraphic chopping is a defect. No markdown, no bullets, no headings, no music cues, "[Music]", "♪", emoji, or brackets. Proper nouns spelled exactly as in the original. ~10 points.
+- Channel rebrand: the source channel's name, host name, sponsor reads, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Original branding leaking through is a defect. ~5 points.
+- Closing engagement: there must be EXACTLY ONE professional closing call to action at the very end inviting subscription to "we go for powered descent" and asking a topic-specific analytical question for the comments. NO opening subscribe aside, NO mid-script asides — only the closing block. Multiple asides, opener asides, or a missing closer are defects. ~10 points.
 
 Score guidance: 100 = no defects; ~90 = essentially clean, only trivial issues; 70-89 = several real defects; 50-69 = significant fact or formatting problems; <50 = major fidelity loss.
 
 LIST EVERY CONCRETE DEFECT in the "issues" array. Each issue MUST be a single object of this shape — no plain strings, no commentary, only fixable defects:
-  {"category": "fact" | "number" | "verbatim" | "artifact" | "typo" | "ear" | "branding" | "engagement", "quote": "<verbatim short snippet from the REWRITTEN script, or empty string if it's a missing-element defect>", "fix": "<specific replacement or addition that resolves it>"}
+  {"category": "fact" | "number" | "verbatim" | "artifact" | "typo" | "ear" | "branding" | "engagement" | "persona" | "lead", "quote": "<verbatim short snippet from the REWRITTEN script, or empty string if it's a missing-element defect>", "fix": "<specific replacement or addition that resolves it>"}
 
 Categories:
-- "ear": prose reads like an article instead of narration (lists, headings, parentheticals, semicolons, "as you can see", etc.).
-- "branding": the source channel's name/host leaked through, or "we go for powered descent" is missing where it should be.
-- "engagement": the opening subscribe aside or the closing comment-bait question is missing, weak, or feels templated.
+- "persona": first-person references or personal anecdotes leaked through ("I", "me", "my", "I spoke to", "when I was at"). Convert to objective broadcast voice ("Analysis suggests", "The data indicates").
+- "lead": the opening fails to resolve the five Ws or buries the news event behind a hook, greeting, teaser, or rhetorical question.
+- "ear": broadcast prose reads as robotic / staccato / one-thought-per-line, or it carries article artifacts (lists, headings, parentheticals, "as you can see").
+- "branding": the source channel's name, host, sponsor, or "this channel / our channel / our show" leaked through, or "we go for powered descent" is missing in the closing.
+- "engagement": more than one CTA aside is present, an opener subscribe aside is present, the closing CTA is missing, or the closing CTA is templated rather than topic-specific.
 
 Do NOT log positive observations ("digits are fully spelled", "no markdown found") as issues. If the script is clean, return an empty array.
 
@@ -211,6 +224,8 @@ function coerceIssue(x: unknown): AccuracyIssue | null {
     'ear',
     'branding',
     'engagement',
+    'persona',
+    'lead',
   ] as const;
   const category = (allowed as readonly string[]).includes(cat)
     ? (cat as AccuracyIssue['category'])
@@ -259,7 +274,7 @@ export async function rewriteScript(originalTranscript: string, title: string): 
     {
       role: 'system',
       content:
-        'You are a precise narration writer. You write for the ear, not the page — short spoken-rhythm sentences, contractions, no markdown, no lists, no parentheticals. You always preserve facts, always rephrase, always expand numbers into spoken words, and always rebrand the source channel as "we go for powered descent". You output only the rewritten script with no preamble.',
+        'You are a Senior Aerospace Correspondent. You translate informal, personality-driven vlogs into professional, high-signal news scripts for the faceless channel "we go for powered descent". You never use the first person. You never invent personal relationships with subjects. You focus on engineering reality and strategic timelines. You write in broadcast cadence — natural mix of complex and simple sentences, never staccato, never one-thought-per-line. You always expand numbers into spoken words and you output only the finished broadcast script with no preamble.',
     },
     { role: 'user', content: buildRewritePrompt(originalTranscript, title) },
   ]);
