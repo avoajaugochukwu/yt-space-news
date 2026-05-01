@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { PipelineEvent, PipelineJob, PipelineStep } from '@/types/pipeline';
+import type { PipelineEvent, PipelineJob, PipelineStep, SeoMetadata } from '@/types/pipeline';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { TerminalWindow } from '@/components/ui/TerminalWindow';
 
@@ -10,6 +10,7 @@ const STEP_ORDER: PipelineStep[] = [
   'dedupe',
   'transcript',
   'rewrite',
+  'seo',
   'normalize',
   'tts-create',
   'tts-poll',
@@ -22,6 +23,7 @@ const STEP_LABEL: Record<PipelineStep, string> = {
   dedupe: 'Check Turso for prior run',
   transcript: 'Fetch transcript',
   rewrite: 'Perplexity rewrite (≥90%)',
+  seo: 'Generate SEO metadata',
   normalize: 'Normalize for TTS',
   'tts-create': 'Create TTS job',
   'tts-poll': 'Wait for audio',
@@ -84,13 +86,130 @@ function stateIcon(s: StepState['state']): string {
   }
 }
 
-interface HistoryItem {
-  video_id: string;
+interface RunListItem {
+  job_id: string;
   channel_handle: string;
-  title: string;
+  video_id: string | null;
+  video_url: string | null;
+  video_title: string | null;
+  status: string;
+  already_processed: number;
   accuracy_score: number | null;
   audio_url: string | null;
-  processed_at: string;
+  started_at: string;
+  finished_at: string | null;
+}
+
+interface RunFull extends RunListItem {
+  transcript: string | null;
+  script: string | null;
+  seo_json: string | null;
+  error: string | null;
+}
+
+function parseSeo(raw: string | null | undefined): SeoMetadata | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as SeoMetadata;
+  } catch {
+    return null;
+  }
+}
+
+function CopyButton({ text, label = 'copy' }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  const onClick = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-xs font-mono uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] px-2 py-0.5 border border-[var(--border)] rounded"
+    >
+      {copied ? 'copied' : label}
+    </button>
+  );
+}
+
+function SeoPanel({ seo }: { seo: SeoMetadata }) {
+  const tagsBlob = seo.tags.join(', ');
+  return (
+    <div className="space-y-3">
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+            Title options ({seo.titles.length})
+          </span>
+          <CopyButton
+            text={seo.titles.map((t) => t.title).join('\n')}
+            label="copy all"
+          />
+        </div>
+        <ul className="space-y-1">
+          {seo.titles.map((t, i) => (
+            <li
+              key={i}
+              className="flex items-start justify-between gap-3 p-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-[var(--foreground)]">{t.title}</div>
+                <div className="text-xs text-[var(--foreground-muted)] font-mono">
+                  {t.title.length}c · {t.principle}
+                  {t.estimatedCTR === 'high' ? ' · high CTR' : ''}
+                </div>
+              </div>
+              <CopyButton text={t.title} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {seo.description && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+              Description ({seo.description.length}c)
+            </span>
+            <CopyButton text={seo.description} />
+          </div>
+          <pre className="whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-64 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+            {seo.description}
+          </pre>
+        </div>
+      )}
+
+      {seo.tags.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+              Tags ({seo.tags.length})
+            </span>
+            <CopyButton text={tagsBlob} label="copy all" />
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {seo.tags.map((tag, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => navigator.clipboard.writeText(tag).catch(() => {})}
+                className="text-xs font-mono px-2 py-0.5 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground)] hover:border-[var(--accent)]"
+                title="click to copy"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function PipelineRunner() {
@@ -98,27 +217,46 @@ export function PipelineRunner() {
   const [job, setJob] = useState<PipelineJob | null>(null);
   const [steps, setSteps] = useState<Record<PipelineStep, StepState>>(emptySteps());
   const [eventLog, setEventLog] = useState<PipelineEvent[]>([]);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [runs, setRuns] = useState<RunListItem[]>([]);
+  const [runsError, setRunsError] = useState<string | null>(null);
+  const [runDetails, setRunDetails] = useState<Record<string, RunFull>>({});
+  const [loadingRunIds, setLoadingRunIds] = useState<Record<string, true>>({});
   const evtSrcRef = useRef<EventSource | null>(null);
 
-  const refreshHistory = async () => {
+  const refreshRuns = async () => {
     try {
-      const r = await fetch('/api/pipeline/history', { cache: 'no-store' });
-      const data = (await r.json()) as { items?: HistoryItem[]; error?: string };
+      const r = await fetch('/api/pipeline/runs', { cache: 'no-store' });
+      const data = (await r.json()) as { items?: RunListItem[]; error?: string };
       if (!r.ok) {
-        setHistoryError(data.error ?? `History request failed (${r.status})`);
+        setRunsError(data.error ?? `Runs request failed (${r.status})`);
         return;
       }
-      setHistoryError(null);
-      setHistory(data.items ?? []);
+      setRunsError(null);
+      setRuns(data.items ?? []);
     } catch (e) {
-      setHistoryError(e instanceof Error ? e.message : String(e));
+      setRunsError(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const loadRunDetails = async (jobId: string) => {
+    if (runDetails[jobId] || loadingRunIds[jobId]) return;
+    setLoadingRunIds((p) => ({ ...p, [jobId]: true }));
+    try {
+      const r = await fetch(`/api/pipeline/runs/${jobId}`, { cache: 'no-store' });
+      if (!r.ok) return;
+      const full = (await r.json()) as RunFull;
+      setRunDetails((p) => ({ ...p, [jobId]: full }));
+    } finally {
+      setLoadingRunIds((p) => {
+        const n = { ...p };
+        delete n[jobId];
+        return n;
+      });
     }
   };
 
   useEffect(() => {
-    void refreshHistory();
+    void refreshRuns();
     return () => {
       evtSrcRef.current?.close();
     };
@@ -158,7 +296,7 @@ export function PipelineRunner() {
       setRunning(false);
       es.close();
       evtSrcRef.current = null;
-      void refreshHistory();
+      void refreshRuns();
     });
 
     es.onerror = () => {
@@ -259,6 +397,15 @@ export function PipelineRunner() {
             </div>
           )}
 
+          {job?.seo && (
+            <div className="p-3 bg-[var(--background)] border border-[var(--border)] rounded-md">
+              <div className="text-xs uppercase tracking-wider text-[var(--accent)] mb-2">
+                YouTube metadata
+              </div>
+              <SeoPanel seo={job.seo} />
+            </div>
+          )}
+
           {eventLog.length > 0 && (
             <details className="text-xs">
               <summary className="cursor-pointer text-[var(--foreground-muted)] uppercase tracking-wider">
@@ -277,40 +424,134 @@ export function PipelineRunner() {
         </div>
       </TerminalWindow>
 
-      <TerminalWindow title="PROCESSED VIDEOS // TURSO">
+      <TerminalWindow title={`ALL RUNS // TURSO (${runs.length})`}>
         <div className="space-y-2">
-          {historyError && (
+          {runsError && (
             <div className="p-2 bg-[var(--background)] border border-[var(--error)] rounded-md text-xs text-[var(--error)]">
-              {historyError}
+              {runsError}
             </div>
           )}
-          {history.length === 0 && !historyError && (
-            <div className="text-xs text-[var(--foreground-muted)]">No videos processed yet.</div>
+          {runs.length === 0 && !runsError && (
+            <div className="text-xs text-[var(--foreground-muted)]">No runs yet.</div>
           )}
-          {history.map((h) => (
-            <div
-              key={h.video_id}
-              className="flex items-start justify-between gap-3 p-2 bg-[var(--background)] border border-[var(--border)] rounded-md"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-[var(--foreground)] truncate">{h.title}</div>
-                <div className="text-xs text-[var(--foreground-muted)] font-mono">
-                  @{h.channel_handle} · {h.video_id} · {h.processed_at}
-                  {h.accuracy_score != null && ` · ${h.accuracy_score}%`}
+          {runs.map((r) => {
+            const full = runDetails[r.job_id];
+            const loading = !!loadingRunIds[r.job_id];
+            const statusColor =
+              r.status === 'completed'
+                ? 'text-[var(--success)]'
+                : r.status === 'failed'
+                  ? 'text-[var(--error)]'
+                  : r.status === 'skipped'
+                    ? 'text-[var(--warning)]'
+                    : 'text-[var(--foreground-muted)]';
+            return (
+              <details
+                key={r.job_id}
+                className="bg-[var(--background)] border border-[var(--border)] rounded-md"
+                onToggle={(e) => {
+                  if ((e.currentTarget as HTMLDetailsElement).open) void loadRunDetails(r.job_id);
+                }}
+              >
+                <summary className="flex items-start justify-between gap-3 p-2 cursor-pointer">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-[var(--foreground)] truncate">
+                      {r.video_title ?? '(no video)'}
+                    </div>
+                    <div className="text-xs text-[var(--foreground-muted)] font-mono truncate">
+                      @{r.channel_handle} · {r.video_id ?? '—'} · {r.started_at}
+                      {r.accuracy_score != null && ` · ${r.accuracy_score}%`}
+                      {r.already_processed ? ' · dedup' : ''}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`text-xs uppercase tracking-wider ${statusColor}`}>{r.status}</span>
+                    {r.audio_url && (
+                      <a
+                        href={r.audio_url}
+                        className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        audio
+                      </a>
+                    )}
+                  </div>
+                </summary>
+                <div className="px-3 pb-3 space-y-3">
+                  {loading && !full && (
+                    <div className="text-xs text-[var(--foreground-muted)]">Loading…</div>
+                  )}
+                  {full && (
+                    <>
+                      <div className="grid grid-cols-2 gap-2 text-xs font-mono text-[var(--foreground-muted)]">
+                        <div>job: <span className="text-[var(--foreground)]">{full.job_id}</span></div>
+                        <div>finished: <span className="text-[var(--foreground)]">{full.finished_at ?? '—'}</span></div>
+                        {full.video_url && (
+                          <div className="col-span-2 truncate">
+                            video:{' '}
+                            <a
+                              href={full.video_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[var(--accent)] hover:underline"
+                            >
+                              {full.video_url}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                      {full.audio_url && (
+                        <div>
+                          <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)] mb-1">
+                            Audio
+                          </div>
+                          <audio controls src={full.audio_url} className="w-full" />
+                        </div>
+                      )}
+                      {(() => {
+                        const seo = parseSeo(full.seo_json);
+                        return seo ? (
+                          <div>
+                            <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)] mb-2">
+                              YouTube metadata
+                            </div>
+                            <SeoPanel seo={seo} />
+                          </div>
+                        ) : null;
+                      })()}
+                      {full.error && (
+                        <div className="p-2 bg-[var(--background-secondary)] border border-[var(--error)] rounded text-xs text-[var(--error)] whitespace-pre-wrap">
+                          {full.error}
+                        </div>
+                      )}
+                      {full.script && (
+                        <details>
+                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+                            Script ({full.script.length.toLocaleString()} chars)
+                          </summary>
+                          <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                            {full.script}
+                          </pre>
+                        </details>
+                      )}
+                      {full.transcript && (
+                        <details>
+                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+                            Original transcript ({full.transcript.length.toLocaleString()} chars)
+                          </summary>
+                          <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground-muted)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                            {full.transcript}
+                          </pre>
+                        </details>
+                      )}
+                    </>
+                  )}
                 </div>
-              </div>
-              {h.audio_url && (
-                <a
-                  href={h.audio_url}
-                  className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  audio
-                </a>
-              )}
-            </div>
-          ))}
+              </details>
+            );
+          })}
         </div>
       </TerminalWindow>
     </div>

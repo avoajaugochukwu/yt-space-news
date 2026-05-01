@@ -2,8 +2,9 @@ import { randomUUID } from 'crypto';
 import { fetchLatestVideo } from './apify';
 import { fetchTranscript } from './transcript';
 import { rewriteUntilAccurate } from './perplexity';
+import { generateSeoMetadata } from './seo';
 import { normalizeText, createTtsJob, pollTtsJob, ttsDownloadUrl, VOICE_NAME } from './voice-generator';
-import { isProcessed, getProcessed, saveProcessed } from './turso';
+import { isProcessed, getProcessed, saveProcessed, saveRun } from './turso';
 import { jobStore } from './job-store';
 import type { PipelineEvent, PipelineJob, PipelineStep } from '@/types/pipeline';
 
@@ -21,6 +22,9 @@ export function startPipeline(channelHandle = DEFAULT_CHANNEL): string {
     videoUrl: null,
     accuracyScore: null,
     audioUrl: null,
+    transcript: null,
+    script: null,
+    seo: null,
     alreadyProcessed: false,
     error: null,
     startedAt: now,
@@ -80,7 +84,7 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
     emit(jobId, 'transcript', 'started', 'Fetching transcript');
     const { title, transcript } = await fetchTranscript(latest.url);
     const resolvedTitle = title || latest.title;
-    jobStore.update(jobId, { videoTitle: resolvedTitle });
+    jobStore.update(jobId, { videoTitle: resolvedTitle, transcript });
     emit(jobId, 'transcript', 'completed', `Transcript fetched (${transcript.length} chars)`, {
       title: resolvedTitle,
     });
@@ -106,7 +110,10 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
         );
       },
     });
-    jobStore.update(jobId, { accuracyScore: outcome.finalAccuracy.score });
+    jobStore.update(jobId, {
+      accuracyScore: outcome.finalAccuracy.score,
+      script: outcome.finalScript,
+    });
     emit(
       jobId,
       'rewrite',
@@ -117,6 +124,17 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
         attempts: outcome.attempts.length,
         reachedThreshold: outcome.reachedThreshold,
       },
+    );
+
+    emit(jobId, 'seo', 'started', 'Generating SEO titles, description, tags');
+    const seo = await generateSeoMetadata(outcome.finalScript, resolvedTitle);
+    jobStore.update(jobId, { seo });
+    emit(
+      jobId,
+      'seo',
+      'completed',
+      `${seo.titles.length} titles · ${seo.tags.length} tags · ${seo.description.length}-char description`,
+      { titles: seo.titles, tagCount: seo.tags.length },
     );
 
     emit(jobId, 'normalize', 'started', 'Normalizing for TTS');
@@ -149,6 +167,7 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
       title: resolvedTitle,
       accuracy_score: outcome.finalAccuracy.score,
       audio_url: audioUrl,
+      script: outcome.finalScript,
     });
     emit(jobId, 'persist', 'completed', 'Saved');
 
@@ -162,5 +181,30 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
       finishedAt: new Date().toISOString(),
     });
     emit(jobId, 'done', 'failed', message);
+  } finally {
+    const final = jobStore.get(jobId);
+    if (final) {
+      try {
+        await saveRun({
+          job_id: final.id,
+          channel_handle: final.channelHandle,
+          video_id: final.videoId,
+          video_url: final.videoUrl,
+          video_title: final.videoTitle,
+          status: final.status,
+          already_processed: final.alreadyProcessed,
+          accuracy_score: final.accuracyScore,
+          audio_url: final.audioUrl,
+          transcript: final.transcript,
+          script: final.script,
+          seo_json: final.seo ? JSON.stringify(final.seo) : null,
+          error: final.error,
+          started_at: final.startedAt,
+          finished_at: final.finishedAt,
+        });
+      } catch (saveErr) {
+        console.error('saveRun failed', saveErr);
+      }
+    }
   }
 }

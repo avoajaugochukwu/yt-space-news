@@ -57,7 +57,16 @@ NUMBER SPELLING RULES (NON-NEGOTIABLE):
 `.trim();
 
 export interface AccuracyIssue {
-  category: 'fact' | 'number' | 'verbatim' | 'artifact' | 'typo' | 'other';
+  category:
+    | 'fact'
+    | 'number'
+    | 'verbatim'
+    | 'artifact'
+    | 'typo'
+    | 'ear'
+    | 'branding'
+    | 'engagement'
+    | 'other';
   quote: string;
   fix: string;
 }
@@ -84,10 +93,15 @@ ORIGINAL VIDEO TITLE: ${title}
 REQUIREMENTS:
 1. Preserve every factual claim, name, quote attribution, statistic, and chronology from the source. Do not invent new facts.
 2. Rewrite every sentence in your own words. No phrase longer than 4 consecutive words may be reused verbatim from the source.
-3. Use a calm, engaging, narration-friendly voice suitable for text-to-speech.
-4. Remove music cues, "[Music]", "[Applause]", "♪", subscribe pleas, sponsor reads, and any non-narrative chatter from the source.
+3. Write for the ear, not the page. Short, spoken-rhythm sentences. Use contractions ("we're", "it's", "they've"). Avoid parenthetical asides, semicolons, em-dashes, bullet points, lists, headings, or anything that would only make sense if a reader could see it. No "as you can see", "in this article", "above", "below", "Figure 1". Use plain narrator transitions ("here's the thing", "now", "but wait").
+4. Remove music cues, "[Music]", "[Applause]", "♪", and any non-narrative chatter from the source. Strip every subscribe plea, sponsor read, channel name, host name, and host self-reference from the original — they belong to the source channel and must not appear.
 5. Keep the same overall length and structure as the source.
 6. Spell every proper noun exactly as it appears in the original (e.g. "Artemis", "SpaceX", "Falcon Heavy") — never approximate or shorten a name.
+7. CHANNEL REBRAND: any time the source mentions its own channel by name, host, or "this channel / our channel / on our show / the channel", replace it with "we go for powered descent". Never carry the original channel's branding into the rewrite.
+8. ENGAGEMENT BEATS: weave two short, natural-sounding engagement asides into the script — they must feel like the narrator's voice, not a banner ad.
+   - One near the opening (within the first ~90 seconds of read-aloud time): invite viewers to subscribe to "we go for powered descent" so they don't miss the next breakdown. Tie the ask to the topic (e.g. "if this is the kind of story you want more of, subscribe to we go for powered descent and you'll catch the next one").
+   - One near the middle or end: ask a specific, opinion-bait question tied to the video's actual subject and prompt viewers to drop their take in the comments. Make the question pointed enough that someone has to disagree (e.g. "is this brilliant or reckless? tell me in the comments").
+   - Both asides must be in spoken voice, no markdown, no "[CTA]" labels, no parentheticals.
 
 ${NUMBER_RULES}
 
@@ -130,6 +144,9 @@ GENERAL GUIDELINES (re-check after applying fixes):
 - No proper-noun typos. Spell every name exactly as in the original (e.g. "Artemis", not "Aremis").
 - No run of more than four consecutive words copied from the source.
 - No markdown, music cues, "[Music]", "♪", emoji, or bracketed stage directions.
+- Written for the ear: short spoken-rhythm sentences, contractions, no lists/headings/parentheticals/semicolons, no "as you can see / in this article / above / below".
+- The source channel's name, host, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Never carry the source channel's branding.
+- Two natural-sounding engagement asides must be present: one near the opening inviting viewers to subscribe to "we go for powered descent", and one near the middle or end asking an opinion-bait question tied to the topic and prompting comments. Both must read as the narrator's voice, not as banners.
 
 ORIGINAL TRANSCRIPT (ground truth for facts):
 """
@@ -148,15 +165,22 @@ function buildAccuracyPrompt(rewrittenScript: string, originalTranscript: string
   return `Audit a rewritten YouTube narration against the original transcript and produce a holistic accuracy score plus a list of concrete defects the editor can fix.
 
 CRITERIA — weigh these when assigning the score (use your judgment on severity, do not just count items):
-- Factual fidelity (heaviest): every fact, name, date, number, and quote from the original is preserved. A wrong fact or missing key claim hurts the score sharply. ~50 points.
-- Number spelling: every digit, %, $, year, decimal, currency, or unit symbol must be spelled out as a narrator would say it ("905" -> "nine hundred and five", "1969" -> "nineteen sixty-nine", "$2.5M" -> "two point five million dollars", "47%" -> "forty-seven percent"). Anything still in numeric form is a defect. ~25 points.
-- Original phrasing: no run of more than four consecutive words is copied verbatim from the source. (Unique proper nouns like "Elon Musk" or "International Space Station" do not count.) ~15 points.
-- TTS readability: no markdown, music cues, "[Music]", "♪", emoji, brackets, or non-narrative artifacts. Proper nouns spelled exactly as in the original. ~10 points.
+- Factual fidelity (heaviest): every fact, name, date, number, and quote from the original is preserved. A wrong fact or missing key claim hurts the score sharply. ~40 points.
+- Number spelling: every digit, %, $, year, decimal, currency, or unit symbol must be spelled out as a narrator would say it ("905" -> "nine hundred and five", "1969" -> "nineteen sixty-nine", "$2.5M" -> "two point five million dollars", "47%" -> "forty-seven percent"). Anything still in numeric form is a defect. ~20 points.
+- Original phrasing: no run of more than four consecutive words is copied verbatim from the source. (Unique proper nouns like "Elon Musk" or "International Space Station" do not count.) ~10 points.
+- Written for the ear: short spoken-rhythm sentences, contractions, no markdown, no bullet points, no headings, no parentheticals, no semicolons or em-dashes used as visual punctuation, no "as you can see / in this article / above / below". No music cues, "[Music]", "♪", emoji, or brackets. Proper nouns spelled exactly as in the original. ~15 points.
+- Channel rebrand: the source channel's name, host name, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent". Original branding leaking through is a "fact" defect. ~5 points.
+- Engagement beats: there must be exactly two natural-sounding spoken asides — one near the opening inviting subscription to "we go for powered descent", and one near the middle or end asking an opinion-bait question and prompting comments. They must sound like the narrator, not a banner. Missing either, or having them feel templated, is a defect. ~10 points.
 
 Score guidance: 100 = no defects; ~90 = essentially clean, only trivial issues; 70-89 = several real defects; 50-69 = significant fact or formatting problems; <50 = major fidelity loss.
 
 LIST EVERY CONCRETE DEFECT in the "issues" array. Each issue MUST be a single object of this shape — no plain strings, no commentary, only fixable defects:
-  {"category": "fact" | "number" | "verbatim" | "artifact" | "typo", "quote": "<verbatim short snippet from the REWRITTEN script>", "fix": "<specific replacement that resolves it>"}
+  {"category": "fact" | "number" | "verbatim" | "artifact" | "typo" | "ear" | "branding" | "engagement", "quote": "<verbatim short snippet from the REWRITTEN script, or empty string if it's a missing-element defect>", "fix": "<specific replacement or addition that resolves it>"}
+
+Categories:
+- "ear": prose reads like an article instead of narration (lists, headings, parentheticals, semicolons, "as you can see", etc.).
+- "branding": the source channel's name/host leaked through, or "we go for powered descent" is missing where it should be.
+- "engagement": the opening subscribe aside or the closing comment-bait question is missing, weak, or feels templated.
 
 Do NOT log positive observations ("digits are fully spelled", "no markdown found") as issues. If the script is clean, return an empty array.
 
@@ -178,7 +202,16 @@ function coerceIssue(x: unknown): AccuracyIssue | null {
   if (!x || typeof x !== 'object') return null;
   const o = x as Record<string, unknown>;
   const cat = String(o.category ?? 'other').toLowerCase();
-  const allowed = ['fact', 'number', 'verbatim', 'artifact', 'typo'] as const;
+  const allowed = [
+    'fact',
+    'number',
+    'verbatim',
+    'artifact',
+    'typo',
+    'ear',
+    'branding',
+    'engagement',
+  ] as const;
   const category = (allowed as readonly string[]).includes(cat)
     ? (cat as AccuracyIssue['category'])
     : 'other';
@@ -226,7 +259,7 @@ export async function rewriteScript(originalTranscript: string, title: string): 
     {
       role: 'system',
       content:
-        'You are a precise script rewriter. You always preserve facts, always rephrase, and always expand numbers into spoken words. You output only the rewritten script with no preamble.',
+        'You are a precise narration writer. You write for the ear, not the page — short spoken-rhythm sentences, contractions, no markdown, no lists, no parentheticals. You always preserve facts, always rephrase, always expand numbers into spoken words, and always rebrand the source channel as "we go for powered descent". You output only the rewritten script with no preamble.',
     },
     { role: 'user', content: buildRewritePrompt(originalTranscript, title) },
   ]);
