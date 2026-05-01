@@ -22,7 +22,7 @@ const STEP_LABEL: Record<PipelineStep, string> = {
   'fetch-latest': 'Fetch latest video',
   dedupe: 'Check Turso for prior run',
   transcript: 'Fetch transcript',
-  rewrite: 'Perplexity rewrite (≥90%)',
+  rewrite: 'Claude rewrite + audit (≥90%)',
   seo: 'Generate SEO metadata',
   normalize: 'Normalize for TTS',
   'tts-create': 'Create TTS job',

@@ -89,7 +89,7 @@ async function runPipeline(jobId: string, channelHandle: string): Promise<void> 
       title: resolvedTitle,
     });
 
-    emit(jobId, 'rewrite', 'started', 'Rewriting via Perplexity (target ≥90% accuracy)');
+    emit(jobId, 'rewrite', 'started', 'Rewriting with Claude, auditing with Perplexity (target ≥90%)');
     const outcome = await rewriteUntilAccurate(transcript, resolvedTitle, {
       onAttempt: (attempt, accuracy) => {
         emit(

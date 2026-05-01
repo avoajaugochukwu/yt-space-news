@@ -19,7 +19,7 @@ export default function Home() {
 
       <footer className="border-t border-[var(--border)] bg-[var(--background-secondary)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 text-xs font-mono text-[var(--foreground-muted)] flex justify-between">
-          <span>Apify · Perplexity · voice-generator-service · Turso</span>
+          <span>Apify · Claude · Perplexity audit · voice-generator-service · Turso</span>
           <span>M-Expressive Narrator</span>
         </div>
       </footer>
