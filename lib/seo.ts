@@ -1,6 +1,4 @@
-const ANTHROPIC_ENDPOINT = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
-const ANTHROPIC_VERSION = '2023-06-01';
+import { callClaude } from './anthropic';
 
 export interface SeoTitle {
   title: string;
@@ -82,38 +80,6 @@ ${script}
 """`;
 }
 
-interface AnthropicResponse {
-  content?: { type: string; text?: string }[];
-}
-
-async function callAnthropic(prompt: string): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY env var is not set');
-
-  const resp = await fetch(ANTHROPIC_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': ANTHROPIC_VERSION,
-    },
-    body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  if (!resp.ok) {
-    const body = await resp.text().catch(() => '');
-    throw new Error(`Anthropic error: ${resp.status} ${body.slice(0, 300)}`);
-  }
-  const data = (await resp.json()) as AnthropicResponse;
-  const text = data.content?.find((b) => b.type === 'text')?.text ?? '';
-  if (!text.trim()) throw new Error('Anthropic returned empty content');
-  return text.trim();
-}
-
 function parseSeo(raw: string): SeoMetadata {
   const cleaned = raw.replace(/```json\s*|```/g, '').trim();
   const match = cleaned.match(/\{[\s\S]*\}/);
@@ -153,6 +119,9 @@ export async function generateSeoMetadata(
   script: string,
   sourceTitle: string,
 ): Promise<SeoMetadata> {
-  const raw = await callAnthropic(buildPrompt(script, sourceTitle));
+  const raw = await callClaude({
+    userPrompt: buildPrompt(script, sourceTitle),
+    maxTokens: 4096,
+  });
   return parseSeo(raw);
 }

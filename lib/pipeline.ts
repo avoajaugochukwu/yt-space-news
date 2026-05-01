@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { fetchLatestVideo } from './apify';
 import { fetchTranscript } from './transcript';
-import { rewriteUntilAccurate } from './perplexity';
+import { rewriteUntilAccurate } from './rewrite';
 import { generateSeoMetadata } from './seo';
 import { normalizeText, createTtsJob, pollTtsJob, ttsDownloadUrl, VOICE_NAME } from './voice-generator';
 import { isProcessed, getProcessed, saveProcessed, saveRun } from './turso';
