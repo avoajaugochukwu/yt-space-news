@@ -152,20 +152,60 @@ function SeoPanel({ seo }: { seo: SeoMetadata }) {
             label="copy all"
           />
         </div>
-        <ul className="space-y-1">
+        <ul className="space-y-3">
           {seo.titles.map((t, i) => (
             <li
               key={i}
-              className="flex items-start justify-between gap-3 p-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded"
+              className="p-3 bg-[var(--background-secondary)] border border-[var(--border)] rounded space-y-2"
             >
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-[var(--foreground)]">{t.title}</div>
-                <div className="text-xs text-[var(--foreground-muted)] font-mono">
-                  {t.title.length}c · {t.principle}
-                  {t.estimatedCTR === 'high' ? ' · high CTR' : ''}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-mono text-[var(--foreground-muted)] mb-0.5">
+                    #{i + 1} · {t.principle}
+                    {t.estimatedCTR === 'high' ? ' · high CTR' : ''} · {t.title.length}c
+                  </div>
+                  <div className="text-sm text-[var(--foreground)]">{t.title}</div>
                 </div>
+                <CopyButton text={t.title} />
               </div>
-              <CopyButton text={t.title} />
+
+              {t.imageKeywords.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]">
+                      Image keywords
+                    </span>
+                    <CopyButton text={t.imageKeywords.join(', ')} label="copy all" />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {t.imageKeywords.map((k, ki) => (
+                      <button
+                        key={ki}
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(k).catch(() => {})}
+                        className="text-xs font-mono px-2 py-0.5 bg-[var(--background)] border border-[var(--border)] rounded text-[var(--foreground)] hover:border-[var(--accent)]"
+                        title="click to copy"
+                      >
+                        {k}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {t.thumbnailText && (
+                <div className="flex items-center justify-between gap-2 border-t border-[var(--border)] pt-2">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-0.5">
+                      Thumbnail text
+                    </div>
+                    <div className="text-sm font-bold text-[var(--foreground)] tracking-wide uppercase truncate">
+                      {t.thumbnailText}
+                    </div>
+                  </div>
+                  <CopyButton text={t.thumbnailText} />
+                </div>
+              )}
             </li>
           ))}
         </ul>
@@ -384,16 +424,43 @@ export function PipelineRunner() {
           </ol>
 
           {finalAudio && (
-            <div className="p-3 bg-[var(--background)] border border-[var(--success)] rounded-md">
-              <div className="text-xs uppercase tracking-wider text-[var(--success)] mb-2">Audio ready</div>
+            <div className="p-3 bg-[var(--background)] border border-[var(--success)] rounded-md space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-[var(--success)]">
+                  Audio ready
+                </span>
+                <CopyButton text={finalAudio} label="copy url" />
+              </div>
               <audio controls src={finalAudio} className="w-full" />
-              <a
-                href={finalAudio}
-                className="block mt-2 text-xs text-[var(--accent)] hover:underline"
-                download
-              >
-                Download MP3
-              </a>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  readOnly
+                  value={finalAudio}
+                  onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
+                  className="flex-1 min-w-0 text-xs font-mono px-2 py-1 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground-muted)]"
+                />
+                <a
+                  href={finalAudio}
+                  className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
+                  download
+                >
+                  download
+                </a>
+              </div>
+            </div>
+          )}
+
+          {job?.script && (
+            <div className="p-3 bg-[var(--background)] border border-[var(--border)] rounded-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs uppercase tracking-wider text-[var(--accent)]">
+                  Rewritten script ({job.script.length.toLocaleString()} chars)
+                </span>
+                <CopyButton text={job.script} />
+              </div>
+              <pre className="whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                {job.script}
+              </pre>
             </div>
           )}
 
@@ -503,11 +570,20 @@ export function PipelineRunner() {
                         )}
                       </div>
                       {full.audio_url && (
-                        <div>
-                          <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)] mb-1">
-                            Audio
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+                              Audio
+                            </span>
+                            <CopyButton text={full.audio_url} label="copy url" />
                           </div>
                           <audio controls src={full.audio_url} className="w-full" />
+                          <input
+                            readOnly
+                            value={full.audio_url}
+                            onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
+                            className="w-full text-xs font-mono px-2 py-1 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground-muted)]"
+                          />
                         </div>
                       )}
                       {(() => {
@@ -528,8 +604,11 @@ export function PipelineRunner() {
                       )}
                       {full.script && (
                         <details>
-                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
-                            Script ({full.script.length.toLocaleString()} chars)
+                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)] flex items-center justify-between gap-3">
+                            <span>Script ({full.script.length.toLocaleString()} chars)</span>
+                            <span onClick={(e) => e.preventDefault()}>
+                              <CopyButton text={full.script} />
+                            </span>
                           </summary>
                           <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
                             {full.script}
@@ -538,8 +617,11 @@ export function PipelineRunner() {
                       )}
                       {full.transcript && (
                         <details>
-                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
-                            Original transcript ({full.transcript.length.toLocaleString()} chars)
+                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)] flex items-center justify-between gap-3">
+                            <span>Original transcript ({full.transcript.length.toLocaleString()} chars)</span>
+                            <span onClick={(e) => e.preventDefault()}>
+                              <CopyButton text={full.transcript} />
+                            </span>
                           </summary>
                           <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground-muted)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
                             {full.transcript}

@@ -7,6 +7,8 @@ export interface SeoTitle {
   principle: string;
   principleNumber: number;
   estimatedCTR: 'high' | 'medium';
+  imageKeywords: string[];
+  thumbnailText: string;
 }
 
 export interface SeoMetadata {
@@ -29,38 +31,50 @@ const PRINCIPLES = `
 `.trim();
 
 function buildPrompt(script: string, sourceTitle: string): string {
-  return `You are a YouTube SEO expert specializing in CTR optimization and metadata generation for the channel "we go for powered descent".
+  return `You are a YouTube SEO strategist for "we go for powered descent" — a faceless aerospace news desk. Every asset you generate must read like a broadcast newsroom, not a vlog.
 
 === TITLE GENERATION FRAMEWORK: 10 PSYCHOLOGICAL HACKS FOR CTR ===
 ${PRINCIPLES}
 
 === TASK ===
-Read the rewritten narration below and generate YouTube SEO metadata for the upload.
+Read the rewritten broadcast script below and generate YouTube SEO metadata for the upload.
 
-1. TITLES: 5 title options, each using a DIFFERENT psychological principle from the framework above.
-   - Each title MUST be under 60 characters (tight is better — punchy, no fluff).
-   - Label which principle each title uses ("principle" + "principleNumber" 1–10).
-   - Rank by predicted CTR (best first). Mark the top 2 as "high", the rest "medium".
-   - Make titles feel natural and clickable, not formulaic.
+1. PACKAGES: Produce exactly 7 thumbnail packages. Each package is a tightly coordinated bundle of {title, imageKeywords, thumbnailText} — the three must reinforce the same angle so they read as a single ad creative.
+   - Each package uses a DIFFERENT psychological principle from the framework above.
+   - Rank packages by predicted CTR (best first). Mark the top 2 as "high", the rest "medium".
+
+2. TITLE (one per package):
+   - BREAKING-NEWS REGISTER: titles must read like an aerospace newsroom headline. Examples: "BREAKING: Starship's Lunar Lander Window Just Slipped", "Artemis III Just Quietly Lost Its Crew Slot", "NASA Confirms Falcon 9's Booster Crisis", "EXCLUSIVE: SpaceX's New Mars Timeline Leaks". Use newsroom signals when honest — words like "BREAKING", "EXCLUSIVE", "REPORT", "CONFIRMED", "JUST IN", "REVEALED" sparingly, at most one per title. Mix in headline verbs: SLIPS, CONFIRMS, REVEALS, SCRAPS, SHIFTS, COLLAPSES, ABANDONS, GREENLIGHTS, OVERTAKES.
+   - Under 60 characters. Title Case is allowed; ALL CAPS is allowed only for ONE news-signal word like "BREAKING" or "EXCLUSIVE".
    - Do NOT include the source channel's name. Do NOT mention "we go for powered descent" inside the title.
-   - Avoid clickbait that the script cannot deliver on — every title must be honestly supported by the content.
+   - Avoid clickbait the script cannot deliver on — every title must be honestly supported by the content.
+   - Label which principle the title uses ("principle" + "principleNumber" 1–10).
 
-2. DESCRIPTION: A YouTube description.
-   - Start with a 2–3 sentence hook/summary of the video.
+3. IMAGE KEYWORDS (per package): "imageKeywords" is an array of EXACTLY 2 short visual-subject phrases that suggest what the thumbnail image should depict. Each phrase is 2–5 words, lower-case, concrete and shootable, NOT abstract.
+   - Good examples: "spacex starship on launch pad", "artemis lander shadow on lunar surface", "elon musk at mission control", "falcon 9 booster mid-flight", "raptor engine close-up", "nasa administrator at podium".
+   - Bad (too abstract): "innovation", "the future", "drama", "uncertainty".
+   - The two phrases should work together as a single composed shot (e.g. one subject + one environment), not two unrelated ideas.
+
+4. THUMBNAIL TEXT (per package): "thumbnailText" is a single short overlay line — NOT two lines. 2–5 words, ALL CAPS, the dominant punch beside the image. Examples: "LANDER WINDOW SLIPS", "CREW CUT TO TWO", "TIMELINE LEAKS", "BOOSTER LOST", "MARS TARGET SHIFTS".
+   - It must NOT duplicate the title's wording — it's the visual hook, not a restatement.
+   - Tightly pair with the imageKeywords and the title's angle.
+
+5. DESCRIPTION: A YouTube description in newsroom voice.
+   - Start with a 2–3 sentence broadcast lead summarizing the news event and its strategic significance — no "in this video", no first person.
    - Then up to 5 chapters formatted EXACTLY as: "TIMESTAMP ▶ Chapter Title", first chapter at 0:00, spaced roughly evenly. Use M:SS format.
    - After chapters, include 2–3 relevant hashtags on their own line.
-   - End with a brief call-to-action that invites viewers to subscribe to "we go for powered descent" and drop their take in the comments.
+   - End with a brief call-to-action that invites viewers to subscribe to "we go for powered descent" and drop their analysis in the comments.
    - Use real newlines (\\n) — no markdown headings, no asterisks, no bullets.
 
-3. TAGS: 15 to 20 YouTube tags.
+6. TAGS: 15 to 20 YouTube tags.
    - Mix broad and specific. Include topic keywords, related topics, and long-tail variations.
    - Lower-case unless a proper noun. No "#" prefix.
 
 ORIGINAL VIDEO TITLE (for context only — do not echo): ${sourceTitle}
 
 === OUTPUT FORMAT ===
-Return ONLY one JSON object on a single line, no preamble, no markdown fences:
-{"titles":[{"title":"...","principle":"...","principleNumber":1,"estimatedCTR":"high"}],"description":"...","tags":["tag1","tag2"]}
+Return ONLY one JSON object on a single line, no preamble, no markdown fences. The "titles" array MUST contain exactly 7 packages.
+{"titles":[{"title":"...","principle":"...","principleNumber":1,"estimatedCTR":"high","imageKeywords":["spacex starship on launch pad","mission control wide shot"],"thumbnailText":"LANDER WINDOW SLIPS"}],"description":"...","tags":["tag1","tag2"]}
 
 === REWRITTEN NARRATION ===
 """
@@ -107,14 +121,23 @@ function parseSeo(raw: string): SeoMetadata {
   const parsed = JSON.parse(json) as Partial<SeoMetadata>;
 
   const titles: SeoTitle[] = Array.isArray(parsed.titles)
-    ? parsed.titles
-        .filter((t): t is SeoTitle => !!t && typeof (t as SeoTitle).title === 'string')
+    ? (parsed.titles as Partial<SeoTitle>[])
+        .filter((t): t is Partial<SeoTitle> => !!t && typeof t.title === 'string')
         .map((t) => ({
           title: String(t.title).slice(0, 100),
           principle: typeof t.principle === 'string' ? t.principle : '',
           principleNumber:
             typeof t.principleNumber === 'number' ? t.principleNumber : 0,
           estimatedCTR: t.estimatedCTR === 'high' ? 'high' : 'medium',
+          imageKeywords: Array.isArray(t.imageKeywords)
+            ? t.imageKeywords
+                .filter((k): k is string => typeof k === 'string')
+                .map((k) => k.trim())
+                .filter(Boolean)
+                .slice(0, 4)
+            : [],
+          thumbnailText:
+            typeof t.thumbnailText === 'string' ? t.thumbnailText.trim() : '',
         }))
     : [];
   const description = typeof parsed.description === 'string' ? parsed.description : '';

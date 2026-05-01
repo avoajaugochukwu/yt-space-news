@@ -17,6 +17,8 @@ export interface SeoTitle {
   principle: string;
   principleNumber: number;
   estimatedCTR: 'high' | 'medium';
+  imageKeywords: string[];
+  thumbnailText: string;
 }
 
 export interface SeoMetadata {
