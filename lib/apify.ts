@@ -23,7 +23,10 @@ interface ApifyVideoItem {
   type?: string;
 }
 
-export async function fetchLatestVideo(channelHandle: string): Promise<LatestVideo> {
+export async function fetchLatestVideos(
+  channelHandle: string,
+  limit = 5,
+): Promise<LatestVideo[]> {
   const token = process.env.APIFY_TOKEN;
   if (!token) throw new Error('APIFY_TOKEN env var is not set');
 
@@ -40,7 +43,7 @@ export async function fetchLatestVideo(channelHandle: string): Promise<LatestVid
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         startUrls: [{ url: startUrl }],
-        maxResults: 5,
+        maxResults: limit,
         maxResultsShorts: 0,
         sortVideosBy: 'NEWEST',
         downloadSubtitles: false,
@@ -70,14 +73,19 @@ export async function fetchLatestVideo(channelHandle: string): Promise<LatestVid
     return tb - ta;
   });
 
-  const latest = videos[0];
-  return {
-    videoId: latest.id!,
-    title: latest.title ?? '(untitled)',
-    url: latest.url ?? `https://www.youtube.com/watch?v=${latest.id}`,
-    publishedAt: latest.date ?? null,
+  return videos.slice(0, limit).map((v) => ({
+    videoId: v.id!,
+    title: v.title ?? '(untitled)',
+    url: v.url ?? `https://www.youtube.com/watch?v=${v.id}`,
+    publishedAt: v.date ?? null,
     channelHandle: handle,
-    channelName: latest.channelName ?? handle,
-    viewCount: typeof latest.viewCount === 'number' ? latest.viewCount : null,
-  };
+    channelName: v.channelName ?? handle,
+    viewCount: typeof v.viewCount === 'number' ? v.viewCount : null,
+  }));
+}
+
+export async function fetchLatestVideo(channelHandle: string): Promise<LatestVideo> {
+  const [latest] = await fetchLatestVideos(channelHandle, 1);
+  if (!latest) throw new Error(`No videos returned for @${channelHandle}`);
+  return latest;
 }

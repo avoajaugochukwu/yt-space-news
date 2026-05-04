@@ -228,6 +228,22 @@ export async function saveProcessed(v: {
   });
 }
 
+export async function getProcessedByIds(videoIds: string[]): Promise<Map<string, ProcessedVideo>> {
+  const out = new Map<string, ProcessedVideo>();
+  if (videoIds.length === 0) return out;
+  await ensureSchema();
+  const placeholders = videoIds.map(() => '?').join(',');
+  const r = await getClient().execute({
+    sql: `SELECT video_id, channel_handle, title, accuracy_score, audio_url, script, processed_at
+          FROM processed_videos WHERE video_id IN (${placeholders})`,
+    args: videoIds,
+  });
+  for (const row of r.rows as unknown as ProcessedVideo[]) {
+    out.set(row.video_id, row);
+  }
+  return out;
+}
+
 export async function listProcessed(limit = 50): Promise<ProcessedVideo[]> {
   await ensureSchema();
   const r = await getClient().execute({

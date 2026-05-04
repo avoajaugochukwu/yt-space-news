@@ -100,6 +100,19 @@ interface RunListItem {
   finished_at: string | null;
 }
 
+interface LatestItem {
+  videoId: string;
+  title: string;
+  url: string;
+  publishedAt: string | null;
+  channelHandle: string;
+  viewCount: number | null;
+  processed: boolean;
+  accuracyScore: number | null;
+  audioUrl: string | null;
+  processedAt: string | null;
+}
+
 interface RunFull extends RunListItem {
   transcript: string | null;
   script: string | null;
@@ -261,6 +274,10 @@ export function PipelineRunner() {
   const [runsError, setRunsError] = useState<string | null>(null);
   const [runDetails, setRunDetails] = useState<Record<string, RunFull>>({});
   const [loadingRunIds, setLoadingRunIds] = useState<Record<string, true>>({});
+  const [latest, setLatest] = useState<LatestItem[]>([]);
+  const [latestLoading, setLatestLoading] = useState(false);
+  const [latestError, setLatestError] = useState<string | null>(null);
+  const [latestChannel, setLatestChannel] = useState<string>('colonbina1');
   const evtSrcRef = useRef<EventSource | null>(null);
 
   const refreshRuns = async () => {
@@ -295,21 +312,58 @@ export function PipelineRunner() {
     }
   };
 
+  const refreshLatest = async () => {
+    setLatestLoading(true);
+    try {
+      const r = await fetch('/api/pipeline/latest', { cache: 'no-store' });
+      const data = (await r.json()) as {
+        items?: LatestItem[];
+        channel?: string;
+        error?: string;
+      };
+      if (!r.ok) {
+        setLatestError(data.error ?? `Latest request failed (${r.status})`);
+        return;
+      }
+      setLatestError(null);
+      setLatest(data.items ?? []);
+      if (data.channel) setLatestChannel(data.channel);
+    } catch (e) {
+      setLatestError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLatestLoading(false);
+    }
+  };
+
   useEffect(() => {
     void refreshRuns();
+    void refreshLatest();
     return () => {
       evtSrcRef.current?.close();
     };
   }, []);
 
-  const startRun = async () => {
+  const startRun = async (selection?: LatestItem) => {
     if (running) return;
     setRunning(true);
     setSteps(emptySteps());
     setEventLog([]);
     setJob(null);
 
-    const r = await fetch('/api/pipeline/run', { method: 'POST' });
+    const body = selection
+      ? {
+          channel: selection.channelHandle,
+          videoId: selection.videoId,
+          title: selection.title,
+          url: selection.url,
+          publishedAt: selection.publishedAt,
+        }
+      : {};
+    const r = await fetch('/api/pipeline/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
     const { jobId } = (await r.json()) as { jobId: string };
 
     const es = new EventSource(`/api/pipeline/jobs/${jobId}/events`);
@@ -337,6 +391,7 @@ export function PipelineRunner() {
       es.close();
       evtSrcRef.current = null;
       void refreshRuns();
+      void refreshLatest();
     });
 
     es.onerror = () => {
@@ -347,7 +402,7 @@ export function PipelineRunner() {
   };
 
   const finalAudio = job?.audioUrl ?? null;
-  const channel = job?.channelHandle ?? 'colonbina1';
+  const channel = job?.channelHandle ?? latestChannel;
 
   return (
     <div className="space-y-6">
@@ -358,9 +413,73 @@ export function PipelineRunner() {
               <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">Source channel</div>
               <div className="text-lg text-[var(--foreground)]">@{channel}</div>
             </div>
-            <ActionButton onClick={startRun} disabled={running} size="lg">
-              {running ? 'Running…' : 'Run latest'}
-            </ActionButton>
+            <button
+              type="button"
+              onClick={() => void refreshLatest()}
+              disabled={latestLoading || running}
+              className="text-xs font-mono uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50 px-2 py-1 border border-[var(--border)] rounded"
+            >
+              {latestLoading ? 'refreshing…' : 'refresh'}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+              Latest 5 videos
+            </div>
+            {latestError && (
+              <div className="p-2 bg-[var(--background)] border border-[var(--error)] rounded-md text-xs text-[var(--error)]">
+                {latestError}
+              </div>
+            )}
+            {latest.length === 0 && !latestError && !latestLoading && (
+              <div className="text-xs text-[var(--foreground-muted)]">No videos found.</div>
+            )}
+            {latest.length === 0 && latestLoading && (
+              <div className="text-xs text-[var(--foreground-muted)]">Loading…</div>
+            )}
+            <ul className="space-y-2">
+              {latest.map((v) => (
+                <li
+                  key={v.videoId}
+                  className="flex items-start gap-3 p-2 bg-[var(--background)] border border-[var(--border)] rounded-md"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <a
+                        href={v.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-[var(--foreground)] hover:underline truncate"
+                      >
+                        {v.title}
+                      </a>
+                      {v.processed ? (
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[var(--success)] text-[var(--success)]">
+                          done{v.accuracyScore != null ? ` · ${v.accuracyScore}%` : ''}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--foreground-muted)]">
+                          new
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono text-[var(--foreground-muted)] truncate">
+                      {v.videoId}
+                      {v.publishedAt ? ` · ${v.publishedAt}` : ''}
+                      {v.viewCount != null ? ` · ${v.viewCount.toLocaleString()} views` : ''}
+                    </div>
+                  </div>
+                  <ActionButton
+                    onClick={() => void startRun(v)}
+                    disabled={running}
+                    size="sm"
+                  >
+                    {running ? '…' : 'Start'}
+                  </ActionButton>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {job && (

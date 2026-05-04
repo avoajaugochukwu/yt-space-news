@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { fetchLatestVideo } from './apify';
+import { fetchLatestVideo, type LatestVideo } from './apify';
 import { fetchTranscript } from './transcript';
 import { rewriteUntilAccurate } from './rewrite';
 import { generateSeoMetadata } from './seo';
@@ -10,16 +10,26 @@ import type { PipelineEvent, PipelineJob, PipelineStep } from '@/types/pipeline'
 
 export const DEFAULT_CHANNEL = 'colonbina1';
 
-export function startPipeline(channelHandle = DEFAULT_CHANNEL): string {
+export interface PipelineSelection {
+  videoId: string;
+  title: string;
+  url: string;
+  publishedAt?: string | null;
+}
+
+export function startPipeline(
+  channelHandle = DEFAULT_CHANNEL,
+  selection?: PipelineSelection,
+): string {
   const id = randomUUID();
   const now = new Date().toISOString();
   const job: PipelineJob = {
     id,
     status: 'running',
     channelHandle,
-    videoId: null,
-    videoTitle: null,
-    videoUrl: null,
+    videoId: selection?.videoId ?? null,
+    videoTitle: selection?.title ?? null,
+    videoUrl: selection?.url ?? null,
     accuracyScore: null,
     audioUrl: null,
     transcript: null,
@@ -32,7 +42,7 @@ export function startPipeline(channelHandle = DEFAULT_CHANNEL): string {
     events: [],
   };
   jobStore.create(job);
-  void runPipeline(id, channelHandle);
+  void runPipeline(id, channelHandle, selection);
   return id;
 }
 
@@ -46,16 +56,34 @@ function emit(
   jobStore.emit(jobId, { ts: new Date().toISOString(), step, status, message, data });
 }
 
-async function runPipeline(jobId: string, channelHandle: string): Promise<void> {
+async function runPipeline(
+  jobId: string,
+  channelHandle: string,
+  selection?: PipelineSelection,
+): Promise<void> {
   try {
-    emit(jobId, 'fetch-latest', 'started', `Fetching latest video from @${channelHandle}`);
-    const latest = await fetchLatestVideo(channelHandle);
+    let latest: LatestVideo;
+    if (selection) {
+      emit(jobId, 'fetch-latest', 'started', `Using selected video: ${selection.title}`);
+      latest = {
+        videoId: selection.videoId,
+        title: selection.title,
+        url: selection.url,
+        publishedAt: selection.publishedAt ?? null,
+        channelHandle,
+        channelName: channelHandle,
+        viewCount: null,
+      };
+    } else {
+      emit(jobId, 'fetch-latest', 'started', `Fetching latest video from @${channelHandle}`);
+      latest = await fetchLatestVideo(channelHandle);
+    }
     jobStore.update(jobId, {
       videoId: latest.videoId,
       videoTitle: latest.title,
       videoUrl: latest.url,
     });
-    emit(jobId, 'fetch-latest', 'completed', `Latest: ${latest.title}`, {
+    emit(jobId, 'fetch-latest', 'completed', `Selected: ${latest.title}`, {
       videoId: latest.videoId,
       url: latest.url,
       publishedAt: latest.publishedAt,
