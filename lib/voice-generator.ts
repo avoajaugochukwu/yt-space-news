@@ -75,6 +75,10 @@ export async function pollTtsJob(
   throw new Error(`TTS job ${jobId} timed out after ${Math.round(POLL_TIMEOUT_MS / 1000)}s`);
 }
 
-export function ttsDownloadUrl(jobId: string): string {
+export function ttsUpstreamDownloadUrl(jobId: string): string {
   return `${BASE_URL}/tts/jobs/${encodeURIComponent(jobId)}/download`;
+}
+
+export function ttsDownloadUrl(jobId: string): string {
+  return `/api/audio/${encodeURIComponent(jobId)}.mp3`;
 }
