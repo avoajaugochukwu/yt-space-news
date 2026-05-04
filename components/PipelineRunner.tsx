@@ -593,13 +593,7 @@ export function PipelineRunner() {
                   onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
                   className="flex-1 min-w-0 text-xs font-mono px-2 py-1 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground-muted)]"
                 />
-                <a
-                  href={finalAudio}
-                  className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
-                  download
-                >
-                  download
-                </a>
+                <DownloadButton url={finalAudio} filename={`${job?.videoId ?? 'audio'}.mp3`} />
               </div>
             </div>
           )}
@@ -725,11 +719,17 @@ export function PipelineRunner() {
                       </div>
                       {full.audio_url && (
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between gap-2">
                             <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
                               Audio
                             </span>
-                            <CopyButton text={full.audio_url} label="copy url" />
+                            <div className="flex items-center gap-2">
+                              <DownloadButton
+                                url={full.audio_url}
+                                filename={`${full.video_id ?? full.job_id}.mp3`}
+                              />
+                              <CopyButton text={full.audio_url} label="copy url" />
+                            </div>
                           </div>
                           <audio controls src={full.audio_url} className="w-full" />
                           <input
