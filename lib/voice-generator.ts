@@ -79,6 +79,11 @@ export function ttsUpstreamDownloadUrl(jobId: string): string {
   return `${BASE_URL}/tts/jobs/${encodeURIComponent(jobId)}/download`;
 }
 
-export function ttsDownloadUrl(jobId: string): string {
-  return `/api/audio/${encodeURIComponent(jobId)}.mp3`;
+export async function resolveTtsAudioUrl(jobId: string): Promise<string> {
+  const upstream = ttsUpstreamDownloadUrl(jobId);
+  const resp = await fetch(upstream, { method: 'HEAD', redirect: 'manual' });
+  const location = resp.headers.get('location');
+  if (location && /\.mp3(\?|$)/i.test(location)) return location;
+  if (location) return location;
+  return upstream;
 }

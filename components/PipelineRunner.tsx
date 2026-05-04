@@ -151,6 +151,41 @@ function CopyButton({ text, label = 'copy' }: { text: string; label?: string }) 
   );
 }
 
+function DownloadButton({ url, filename }: { url: string; filename: string }) {
+  const [working, setWorking] = useState(false);
+  const onClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (working) return;
+    setWorking(true);
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`fetch ${resp.status}`);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
+    } catch {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } finally {
+      setWorking(false);
+    }
+  };
+  return (
+    <a
+      href={url}
+      onClick={onClick}
+      className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
+    >
+      {working ? 'downloading…' : 'download'}
+    </a>
+  );
+}
+
 function SeoPanel({ seo }: { seo: SeoMetadata }) {
   const tagsBlob = seo.tags.join(', ');
   return (
