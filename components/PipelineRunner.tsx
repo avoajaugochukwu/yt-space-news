@@ -129,6 +129,18 @@ function parseSeo(raw: string | null | undefined): SeoMetadata | null {
   }
 }
 
+function formatLocal(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 function CopyButton({ text, label = 'copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   const onClick = async () => {
@@ -501,7 +513,7 @@ export function PipelineRunner() {
                     </div>
                     <div className="text-xs font-mono text-[var(--foreground-muted)] truncate">
                       {v.videoId}
-                      {v.publishedAt ? ` · ${v.publishedAt}` : ''}
+                      {v.publishedAt ? ` · ${formatLocal(v.publishedAt)}` : ''}
                       {v.viewCount != null ? ` · ${v.viewCount.toLocaleString()} views` : ''}
                     </div>
                   </div>
@@ -674,7 +686,7 @@ export function PipelineRunner() {
                       {r.video_title ?? '(no video)'}
                     </div>
                     <div className="text-xs text-[var(--foreground-muted)] font-mono truncate">
-                      @{r.channel_handle} · {r.video_id ?? '—'} · {r.started_at}
+                      @{r.channel_handle} · {r.video_id ?? '—'} · {formatLocal(r.started_at)}
                       {r.accuracy_score != null && ` · ${r.accuracy_score}%`}
                       {r.already_processed ? ' · dedup' : ''}
                     </div>
@@ -702,7 +714,7 @@ export function PipelineRunner() {
                     <>
                       <div className="grid grid-cols-2 gap-2 text-xs font-mono text-[var(--foreground-muted)]">
                         <div>job: <span className="text-[var(--foreground)]">{full.job_id}</span></div>
-                        <div>finished: <span className="text-[var(--foreground)]">{full.finished_at ?? '—'}</span></div>
+                        <div>finished: <span className="text-[var(--foreground)]">{full.finished_at ? formatLocal(full.finished_at) : '—'}</span></div>
                         {full.video_url && (
                           <div className="col-span-2 truncate">
                             video:{' '}

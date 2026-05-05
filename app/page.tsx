@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { PipelineRunner } from '@/components/PipelineRunner';
 
 export default function Home() {
@@ -10,6 +11,12 @@ export default function Home() {
           <span className="text-xs font-mono text-[var(--foreground-muted)] px-2 py-1 bg-[var(--background)] rounded">
             v0.2
           </span>
+          <Link
+            href="/director"
+            className="ml-auto text-xs font-mono uppercase tracking-wider px-3 py-1.5 rounded border border-[var(--border)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors"
+          >
+            Director →
+          </Link>
         </div>
       </header>
 

@@ -3,7 +3,7 @@ import { fetchLatestVideo, type LatestVideo } from './apify';
 import { fetchTranscript } from './transcript';
 import { rewriteUntilAccurate } from './rewrite';
 import { generateSeoMetadata } from './seo';
-import { normalizeText, createTtsJob, pollTtsJob, resolveTtsAudioUrl, VOICE_NAME } from './voice-generator';
+import { normalizeText, createTtsJob, pollTtsJob, uploadTtsAudioToS3, VOICE_NAME } from './voice-generator';
 import { isProcessed, getProcessed, saveProcessed, saveRun } from './turso';
 import { jobStore } from './job-store';
 import type { PipelineEvent, PipelineJob, PipelineStep } from '@/types/pipeline';
@@ -184,7 +184,8 @@ async function runPipeline(
         });
       }
     });
-    const audioUrl = await resolveTtsAudioUrl(ttsJobId);
+    emit(jobId, 'tts-poll', 'progress', 'Uploading audio to S3');
+    const audioUrl = await uploadTtsAudioToS3(ttsJobId);
     jobStore.update(jobId, { audioUrl });
     emit(jobId, 'tts-poll', 'completed', 'Audio ready', { audioUrl });
 

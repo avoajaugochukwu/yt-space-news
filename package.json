@@ -11,9 +11,13 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.56",
     "@ai-sdk/openai": "^2.0.88",
+    "@aws-sdk/client-s3": "^3.1042.0",
+    "@aws-sdk/s3-request-presigner": "^3.1042.0",
     "@libsql/client": "^0.17.3",
+    "@remotion/lambda": "^4.0.451",
     "ai": "^5.0.115",
     "next": "16.2.4",
+    "openai": "^6.36.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -25,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
