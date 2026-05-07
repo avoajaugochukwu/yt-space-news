@@ -29,7 +29,7 @@ const PRINCIPLES = `
 `.trim();
 
 function buildPrompt(script: string, sourceTitle: string): string {
-  return `You are a YouTube SEO strategist for "we go for powered descent" — a faceless aerospace news desk. Every asset you generate must read like a broadcast newsroom, not a vlog.
+  return `You are a YouTube SEO strategist for "this is your favorite space channel" — a faceless aerospace news desk. Every asset you generate must read like a broadcast newsroom, not a vlog.
 
 === TITLE GENERATION FRAMEWORK: 10 PSYCHOLOGICAL HACKS FOR CTR ===
 ${PRINCIPLES}
@@ -44,7 +44,7 @@ Read the rewritten broadcast script below and generate YouTube SEO metadata for 
 2. TITLE (one per package):
    - BREAKING-NEWS REGISTER: titles must read like an aerospace newsroom headline. Examples: "BREAKING: Starship's Lunar Lander Window Just Slipped", "Artemis III Just Quietly Lost Its Crew Slot", "NASA Confirms Falcon 9's Booster Crisis", "EXCLUSIVE: SpaceX's New Mars Timeline Leaks". Use newsroom signals when honest — words like "BREAKING", "EXCLUSIVE", "REPORT", "CONFIRMED", "JUST IN", "REVEALED" sparingly, at most one per title. Mix in headline verbs: SLIPS, CONFIRMS, REVEALS, SCRAPS, SHIFTS, COLLAPSES, ABANDONS, GREENLIGHTS, OVERTAKES.
    - Under 60 characters. Title Case is allowed; ALL CAPS is allowed only for ONE news-signal word like "BREAKING" or "EXCLUSIVE".
-   - Do NOT include the source channel's name. Do NOT mention "we go for powered descent" inside the title.
+   - Do NOT include the source channel's name. Do NOT mention "this is your favorite space channel" inside the title.
    - Avoid clickbait the script cannot deliver on — every title must be honestly supported by the content.
    - Label which principle the title uses ("principle" + "principleNumber" 1–10).
 
@@ -61,7 +61,7 @@ Read the rewritten broadcast script below and generate YouTube SEO metadata for 
    - Start with a 2–3 sentence broadcast lead summarizing the news event and its strategic significance — no "in this video", no first person.
    - Then up to 5 chapters formatted EXACTLY as: "TIMESTAMP ▶ Chapter Title", first chapter at 0:00, spaced roughly evenly. Use M:SS format.
    - After chapters, include 2–3 relevant hashtags on their own line.
-   - End with a brief call-to-action that invites viewers to subscribe to "we go for powered descent" and drop their analysis in the comments.
+   - End with a brief call-to-action that invites viewers to subscribe to "this is your favorite space channel" and drop their analysis in the comments.
    - Use real newlines (\\n) — no markdown headings, no asterisks, no bullets.
 
 6. TAGS: 15 to 20 YouTube tags.

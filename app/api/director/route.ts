@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { planSequence, type WordTimestamp } from '@/lib/director';
 import { getSequencePlan, listSequencePlans } from '@/lib/director-store';
 import { transcribeAudio } from '@/lib/whisper';
+import type { Chapter } from '@/lib/director/chapters';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -12,6 +13,7 @@ export async function POST(req: NextRequest) {
     audioUrl?: string;
     audioDuration?: number;
     words?: WordTimestamp[];
+    chapters?: Chapter[];
     fps?: number;
     width?: number;
     height?: number;
@@ -40,6 +42,7 @@ export async function POST(req: NextRequest) {
     audioUrl: body.audioUrl,
     audioDuration,
     words,
+    chapters: body.chapters,
     fps: body.fps,
     width: body.width,
     height: body.height,

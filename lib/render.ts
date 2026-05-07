@@ -3,11 +3,12 @@ import { CopyObjectCommand } from '@aws-sdk/client-s3';
 import {
   getSequencePlan,
   listVideoSources,
-  saveSequencePlan,
 } from './director-store';
 import type { SequenceJSON } from './director';
 import { AWS_REGION, MEDIA_BUCKET, publicUrl } from './storage/aws';
 import { getS3 } from './storage/s3';
+import { cleanupJob } from './cleanup';
+import { saveRenderManifest } from './render-manifest';
 
 function envOrThrow(name: string): string {
   const v = process.env[name];
@@ -109,6 +110,7 @@ export async function pollRender(input: {
   done: boolean;
   progress: number;
   outputUrl?: string;
+  manifestUrl?: string | null;
   error?: string;
 }> {
   const functionName = envOrThrow('REMOTION_LAMBDA_FUNCTION_NAME');
@@ -129,19 +131,25 @@ export async function pollRender(input: {
       console.warn('[render] copy to media bucket failed:', (err as Error).message);
     }
     const plan = await getSequencePlan(input.planId);
+    let manifestUrl: string | null = null;
     if (plan) {
-      await saveSequencePlan({
-        plan_id: plan.plan_id,
-        job_id: plan.job_id,
-        audio_url: plan.audio_url,
-        audio_duration_seconds: plan.audio_duration_seconds,
-        sequence_json: plan.sequence_json,
-        status: 'rendered',
-        render_url: finalUrl,
-        rendered_at: new Date().toISOString(),
-      });
+      try {
+        const m = await saveRenderManifest(plan.plan_id, finalUrl);
+        manifestUrl = m?.url ?? null;
+        if (manifestUrl) console.log(`[render] manifest → ${manifestUrl}`);
+      } catch (err) {
+        console.warn('[render] manifest save failed:', (err as Error).message);
+      }
+      try {
+        const r = await cleanupJob(plan.job_id);
+        console.log(
+          `[render] cleanup job=${plan.job_id} s3=${r.s3Deleted} scenes=${r.scenesDeleted} sources=${r.sourcesDeleted} plans=${r.plansDeleted}`,
+        );
+      } catch (err) {
+        console.warn('[render] cleanup failed:', (err as Error).message);
+      }
     }
-    return { done: true, progress: 1, outputUrl: finalUrl };
+    return { done: true, progress: 1, outputUrl: finalUrl, manifestUrl };
   }
   return { done: false, progress: p.overallProgress ?? 0 };
 }

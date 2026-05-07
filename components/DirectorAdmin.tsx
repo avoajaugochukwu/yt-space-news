@@ -29,6 +29,14 @@ type Clip =
       imageUrl: string;
       reason: string;
     };
+type Chapter = {
+  startSec: number;
+  endSec: number;
+  theme: string;
+  narrative: string;
+  namedEntities: string[];
+  tags: string[];
+};
 type Sequence = {
   audioUrl: string;
   audioDuration: number;
@@ -36,13 +44,16 @@ type Sequence = {
   width: number;
   height: number;
   clips: Clip[];
+  chapters?: Chapter[];
 };
 
 const fmt = (s: number) =>
   `${Math.floor(s / 60)}:${(s % 60).toFixed(2).padStart(5, '0')}`;
 
 export function DirectorAdmin() {
-  const [jobId, setJobId] = useState('');
+  const [jobId] = useState(
+    () => `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  );
   const [sources, setSources] = useState<Source[]>([]);
   const [uploading, setUploading] = useState(false);
   const [cataloging, setCataloging] = useState(false);
@@ -55,17 +66,22 @@ export function DirectorAdmin() {
   );
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderUrl, setRenderUrl] = useState<string | null>(null);
+  const [manifestUrl, setManifestUrl] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState('');
+  const [analysing, setAnalysing] = useState(false);
+  const [chapters, setChapters] = useState<Chapter[] | null>(null);
+  const [words, setWords] = useState<Array<{ word: string; start: number; end: number }> | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [entityHints, setEntityHints] = useState<{
+    expectedEntities: string[];
+    visualThemes: string[];
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deletingScenes, setDeletingScenes] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ingestFiles = useCallback(
     async (rawFiles: File[]) => {
-      if (!jobId) {
-        setError('set a job id first');
-        return;
-      }
       const remaining = Math.max(0, 5 - sources.length);
       const files = rawFiles.slice(0, remaining);
       if (files.length === 0) {
@@ -153,7 +169,7 @@ export function DirectorAdmin() {
       const r = await fetch('/api/catalog', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jobId, sources }),
+        body: JSON.stringify({ jobId, sources, entityHints: entityHints ?? undefined }),
       });
       if (!r.ok) throw new Error(await r.text());
       const list = await fetch(`/api/catalog?jobId=${jobId}`).then((x) => x.json());
@@ -162,6 +178,37 @@ export function DirectorAdmin() {
       setError((e as Error).message);
     } finally {
       setCataloging(false);
+    }
+  };
+
+  const analyseAudio = async () => {
+    if (!audioUrl) {
+      setError('audio URL required');
+      return;
+    }
+    setAnalysing(true);
+    setError(null);
+    try {
+      const r = await fetch('/api/chapters', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ audioUrl, jobId }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = (await r.json()) as {
+        audioDuration: number;
+        words: Array<{ word: string; start: number; end: number }>;
+        chapters: Chapter[];
+        entityHints: { expectedEntities: string[]; visualThemes: string[] };
+      };
+      setAudioDuration(j.audioDuration);
+      setWords(j.words);
+      setChapters(j.chapters);
+      setEntityHints(j.entityHints);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setAnalysing(false);
     }
   };
 
@@ -178,7 +225,13 @@ export function DirectorAdmin() {
       const r = await fetch('/api/director', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jobId, audioUrl }),
+        body: JSON.stringify({
+          jobId,
+          audioUrl,
+          chapters: chapters ?? undefined,
+          words: words ?? undefined,
+          audioDuration: audioDuration ?? undefined,
+        }),
       });
       if (!r.ok) throw new Error(await r.text());
       const j = (await r.json()) as { planId: string; sequence: Sequence };
@@ -235,6 +288,7 @@ export function DirectorAdmin() {
         done: boolean;
         progress: number;
         outputUrl?: string;
+        manifestUrl?: string | null;
         error?: string;
       };
       setRenderProgress(j.progress);
@@ -244,6 +298,7 @@ export function DirectorAdmin() {
       }
       if (j.done && j.outputUrl) {
         setRenderUrl(j.outputUrl);
+        if (j.manifestUrl) setManifestUrl(j.manifestUrl);
         return;
       }
     }
@@ -252,16 +307,41 @@ export function DirectorAdmin() {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">1. Job</h2>
-        <input
-          value={jobId}
-          onChange={(e) => setJobId(e.target.value)}
-          placeholder="job id (any string)"
-          className="border px-3 py-2 rounded font-mono text-sm w-full max-w-md"
-        />
+        <h2 className="text-lg font-semibold">1. Audio</h2>
+        <div className="flex gap-2">
+          <input
+            value={audioUrl}
+            onChange={(e) => setAudioUrl(e.target.value)}
+            placeholder="TTS audio URL — Whisper + chapter inference run before upload"
+            className="flex-1 border px-3 py-2 rounded font-mono text-sm"
+          />
+          <button
+            onClick={analyseAudio}
+            disabled={analysing || !audioUrl || !!chapters}
+            className="px-3 py-2 bg-blue-600 text-white rounded font-mono text-sm disabled:opacity-50"
+          >
+            {analysing ? 'analysing…' : chapters ? '✓ analysed' : 'Analyse'}
+          </button>
+        </div>
+        {chapters ? (
+          <details className="text-xs font-mono opacity-80">
+            <summary className="cursor-pointer">
+              {chapters.length} chapters · {entityHints?.expectedEntities.length ?? 0} entities to look for
+            </summary>
+            <ul className="mt-2 space-y-1">
+              {chapters.map((c, i) => (
+                <li key={i}>
+                  <span className="opacity-60">{fmt(c.startSec)}–{fmt(c.endSec)}</span>{' '}
+                  <span className="font-bold">{c.theme}</span>{' '}
+                  <span className="opacity-60">— {c.namedEntities.join(', ')}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
       </section>
 
-      <section className="space-y-3">
+      <section className={`space-y-3 ${chapters ? '' : 'opacity-40 pointer-events-none'}`}>
         <h2 className="text-lg font-semibold">2. Upload sources (up to 5)</h2>
         <div
           onDragOver={(e) => e.preventDefault()}
@@ -276,7 +356,9 @@ export function DirectorAdmin() {
         >
           {uploading
             ? 'uploading…'
-            : `click to choose or drop video files here (${sources.length}/5)`}
+            : chapters
+              ? `click to choose or drop video files here (${sources.length}/5)`
+              : 'analyse audio first to enable upload'}
         </div>
         <input
           ref={fileInputRef}
@@ -358,33 +440,29 @@ export function DirectorAdmin() {
         </section>
       ) : null}
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">4. Plan (DTW)</h2>
-        <input
-          value={audioUrl}
-          onChange={(e) => setAudioUrl(e.target.value)}
-          placeholder="TTS audio URL (duration + word timestamps auto-derived via Whisper)"
-          className="border px-3 py-2 rounded font-mono text-sm w-full"
-        />
+      <section className={`space-y-3 ${scenes.length > 0 ? '' : 'opacity-40 pointer-events-none'}`}>
+        <h2 className="text-lg font-semibold">4. Render</h2>
         <button
           onClick={runPlan}
-          disabled={planning}
-          className="px-3 py-2 bg-blue-600 text-white rounded font-mono text-sm disabled:opacity-50"
+          disabled={planning || !audioUrl || scenes.length === 0}
+          className="px-3 py-2 bg-green-700 text-white rounded font-mono text-sm disabled:opacity-50"
         >
-          {planning ? 'transcribing + planning…' : 'Generate sequence'}
+          {planning ? 'planning + rendering…' : 'Render'}
         </button>
       </section>
 
       {sequence ? (
         <section className="space-y-2">
-          <h2 className="text-lg font-semibold">5. Render</h2>
+          <h2 className="text-lg font-semibold">5. Result</h2>
           {(() => {
             const counts = sequence.clips.reduce<Record<string, number>>((acc, c) => {
               acc[c.kind] = (acc[c.kind] ?? 0) + 1;
               return acc;
             }, {});
+            const chapterCount = sequence.chapters?.length ?? 0;
             return (
               <div className="text-xs font-mono opacity-80">
+                {chapterCount > 0 ? `${chapterCount} chapters · ` : ''}
                 {sequence.clips.length} clips · {Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(' · ')}
               </div>
             );
@@ -397,14 +475,26 @@ export function DirectorAdmin() {
                 : 'queued'}
           </div>
           {renderUrl ? (
-            <a
-              href={renderUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="block underline font-mono text-sm break-all"
-            >
-              {renderUrl}
-            </a>
+            <div className="space-y-1">
+              <a
+                href={renderUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="block underline font-mono text-sm break-all"
+              >
+                {renderUrl}
+              </a>
+              {manifestUrl ? (
+                <a
+                  href={manifestUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block font-mono text-xs opacity-70 hover:opacity-100 break-all"
+                >
+                  manifest.json (clip-by-clip retrospection)
+                </a>
+              ) : null}
+            </div>
           ) : null}
         </section>
       ) : null}

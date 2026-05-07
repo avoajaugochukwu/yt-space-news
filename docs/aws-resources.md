@@ -18,17 +18,19 @@ Update this file whenever a resource is created, renamed, or deleted.
 - CORS: `GET HEAD PUT POST` from `*` for browser uploads.
 - Tags: `Project=yt-space-news`, `Env=prod`, `CostCenter=video-pipeline`, `ManagedBy=cli`.
 
+Storage model: **per-run artifacts are ephemeral**. After a render succeeds, `lib/cleanup.ts` (called from `pollRender`) deletes all transient rows + S3 objects for that job. Only the final MP4 in `renders/` and the curated fallbacks in `bureau/` survive. Lifecycle rules below are a safety net for runs that don't complete cleanup (abandoned tabs, errors).
+
 Prefixes:
 | Prefix | Purpose | Lifecycle |
 | --- | --- | --- |
-| `sources/` | Uploaded raw videos (B-roll pool) | → STANDARD_IA at 30d → GLACIER_IR at 120d |
-| `keyframes/` | Extracted JPGs for vision tagging | expire 30d |
-| `bureau/` | Curated fallback images (Ken Burns) | retain (no rule) |
-| `audio/` | TTS outputs | expire 60d |
+| `sources/` | Uploaded raw videos | expire 1d |
+| `keyframes/` | Extracted JPGs for vision tagging | expire 1d |
+| `bureau/` | Curated fallback images (Ken Burns) | retain |
+| `audio/` | TTS outputs (referenced from pipeline_runs.audio_url) | retain (no rule) |
 | `renders/` | Final MP4s | → STANDARD_IA at 60d |
-| `manifests/` | Visual manifest JSONs | expire 90d |
+| `manifests/` | Visual manifest JSONs | expire 1d |
 
-Global rule: incomplete multipart uploads abort at 3 days.
+Global rule: incomplete multipart uploads abort at 1 day.
 
 ### Remotion Lambda site (managed by Remotion CLI)
 - Render bucket: `remotionlambda-uswest2-wwdsm4roaj` (auto-named, do not rename).

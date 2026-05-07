@@ -87,6 +87,7 @@ export async function detectScenes(
 export async function extractKeyframe(
   filePath: string,
   timeSeconds: number,
+  width = 640,
 ): Promise<Buffer> {
   const dir = await mkdtemp(path.join(tmpdir(), 'kf-'));
   const out = path.join(dir, 'kf.jpg');
@@ -96,7 +97,7 @@ export async function extractKeyframe(
       '-ss', timeSeconds.toFixed(3),
       '-i', filePath,
       '-frames:v', '1',
-      '-vf', 'scale=640:-2',
+      '-vf', `scale=${width}:-2`,
       '-q:v', '4',
       out,
     ]);
@@ -104,6 +105,46 @@ export async function extractKeyframe(
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+}
+
+// Sample N candidate frames evenly across the scene, return the sharpest +
+// reject the scene entirely if the best candidate looks like a transition
+// (uniform frame, fade-to-black, etc.). The heuristic uses JPG compressed-byte
+// size at constant quality: low-detail/uniform frames compress to small files,
+// high-detail in-focus frames compress to larger files. Cheap, no extra deps.
+const TRANSITION_BYTE_THRESHOLD = 6_000; // ~6KB at 1280px q=4 is junk
+
+export async function extractBestKeyframe(
+  filePath: string,
+  scene: { start: number; end: number },
+  width = 1280,
+  candidates = 5,
+): Promise<Buffer | null> {
+  const duration = scene.end - scene.start;
+  if (duration <= 0) return null;
+  const offsets: number[] = [];
+  // Sample inside (avoid boundaries, which often catch the cut transition).
+  for (let i = 0; i < candidates; i++) {
+    const t = scene.start + ((i + 1) / (candidates + 1)) * duration;
+    offsets.push(t);
+  }
+
+  const buffers = await Promise.all(
+    offsets.map(async (t) => {
+      try {
+        return await extractKeyframe(filePath, t, width);
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  let best: Buffer | null = null;
+  for (const b of buffers) {
+    if (b && (!best || b.byteLength > best.byteLength)) best = b;
+  }
+  if (!best || best.byteLength < TRANSITION_BYTE_THRESHOLD) return null;
+  return best;
 }
 
 export async function downloadToTemp(url: string, ext = '.mp4'): Promise<string> {

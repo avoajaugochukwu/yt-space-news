@@ -4,9 +4,10 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   DeleteObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { MEDIA_BUCKET, AWS_REGION, publicUrl, s3Key, type S3PrefixKey } from './aws';
+import { AWS_REGION, MEDIA_BUCKET, publicUrl, s3Key, type S3PrefixKey } from './aws';
 
 let client: S3Client | null = null;
 
@@ -51,6 +52,38 @@ export async function headObject(key: string): Promise<{ size: number; contentTy
 
 export async function deleteObject(key: string): Promise<void> {
   await getS3().send(new DeleteObjectCommand({ Bucket: MEDIA_BUCKET, Key: key }));
+}
+
+export async function deleteObjects(keys: string[]): Promise<void> {
+  const filtered = keys.filter(Boolean);
+  if (filtered.length === 0) return;
+  for (let i = 0; i < filtered.length; i += 1000) {
+    const chunk = filtered.slice(i, i + 1000);
+    await getS3().send(
+      new DeleteObjectsCommand({
+        Bucket: MEDIA_BUCKET,
+        Delete: { Objects: chunk.map((Key) => ({ Key })), Quiet: true },
+      }),
+    );
+  }
+}
+
+export function ourBucketKey(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const region = AWS_REGION;
+    if (u.hostname === `${MEDIA_BUCKET}.s3.${region}.amazonaws.com`) {
+      return decodeURIComponent(u.pathname.replace(/^\//, ''));
+    }
+    if (u.hostname === `s3.${region}.amazonaws.com`) {
+      const m = u.pathname.match(new RegExp(`^/${MEDIA_BUCKET}/(.+)$`));
+      if (m) return decodeURIComponent(m[1]);
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
 }
 
 export async function presignedPutUrl(

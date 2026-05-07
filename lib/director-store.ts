@@ -260,6 +260,30 @@ export async function getSequencePlan(planId: string): Promise<SequencePlanRow |
   return r.rows[0] as unknown as SequencePlanRow;
 }
 
+export async function deleteScenesForJob(jobId: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({
+    sql: 'DELETE FROM scenes WHERE job_id = ?',
+    args: [jobId],
+  });
+}
+
+export async function deleteVideoSourcesForJob(jobId: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({
+    sql: 'DELETE FROM video_sources WHERE job_id = ?',
+    args: [jobId],
+  });
+}
+
+export async function deleteSequencePlansForJob(jobId: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({
+    sql: 'DELETE FROM sequence_plans WHERE job_id = ?',
+    args: [jobId],
+  });
+}
+
 export async function listSequencePlans(jobId?: string): Promise<SequencePlanRow[]> {
   await ensureSchema();
   const c = getClient();

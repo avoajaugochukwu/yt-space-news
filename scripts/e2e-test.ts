@@ -5,6 +5,7 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { catalogSources } from '../lib/cataloger';
 import { planSequence } from '../lib/director';
+import { inferChapters } from '../lib/director/chapters';
 import { pollRender, startRender } from '../lib/render';
 import { listScenesForJob, listSequencePlans } from '../lib/director-store';
 import { putBuffer } from '../lib/storage/s3';
@@ -114,27 +115,39 @@ async function main() {
     const audioUp = await uploadFile('audio', `${jobId}.mp3`, audioTrim, 'audio/mpeg');
     console.log(`  audio: ${audioUp.url}`);
 
-    console.log('[e2e] cataloging sources (parallel) …');
+    console.log('[e2e] whisper + chapters first …');
+    const t1 = Date.now();
+    const { transcribeAudio } = await import('../lib/whisper');
+    const tr = await transcribeAudio(audioUp.url);
+    console.log(`  whisper: ${tr.words.length} words, ${tr.duration.toFixed(2)}s in ${(Date.now() - t1) / 1000}s`);
+    const chapters = await inferChapters({
+      words: tr.words,
+      audioDuration: tr.duration,
+      script: null,
+    });
+    const expectedEntities = Array.from(new Set(chapters.flatMap((c) => c.namedEntities)));
+    const visualThemes = Array.from(new Set(chapters.flatMap((c) => [c.theme, ...c.tags])));
+    console.log(`  chapters: ${chapters.length}, entities: ${expectedEntities.length}`);
+
+    console.log('[e2e] cataloging sources (parallel, with entity hints) …');
     const t0 = Date.now();
     const cat = await catalogSources(
       jobId,
       uploaded.map((u, i) => ({ url: u.url, key: u.key, name: `src-${i}.mp4` })),
+      { expectedEntities, visualThemes },
     );
     console.log(`  cataloged in ${(Date.now() - t0) / 1000}s:`, cat);
 
     const scenes = await listScenesForJob(jobId);
     console.log(`  scenes total: ${scenes.length}`);
 
-    console.log('[e2e] planning via /api/director path (whisper auto-transcribe) …');
-    const t1 = Date.now();
-    const { transcribeAudio } = await import('../lib/whisper');
-    const tr = await transcribeAudio(audioUp.url);
-    console.log(`  whisper: ${tr.words.length} words, ${tr.duration.toFixed(2)}s in ${(Date.now() - t1) / 1000}s`);
+    console.log('[e2e] planning (chapters cached) …');
     const plan = await planSequence({
       jobId,
       audioUrl: audioUp.url,
       audioDuration: tr.duration,
       words: tr.words,
+      chapters,
     });
     console.log(`  planId=${plan.planId}, clips=${plan.sequence.clips.length}`);
     plan.sequence.clips.slice(0, 6).forEach((c, i) => {
@@ -163,6 +176,8 @@ async function main() {
       if (p.error) throw new Error(p.error);
       if (p.done && p.outputUrl) {
         console.log(`\n[e2e] DONE → ${p.outputUrl}`);
+        const pp = p as { manifestUrl?: string | null };
+        if (pp.manifestUrl) console.log(`[e2e] manifest → ${pp.manifestUrl}`);
         const plans = await listSequencePlans(jobId);
         console.log(`  plan row: status=${plans[0]?.status} render_url=${plans[0]?.render_url}`);
         return;

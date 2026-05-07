@@ -94,7 +94,7 @@ export interface RewriteOutcome {
 
 function buildRewritePrompt(originalTranscript: string, title: string): string {
   return `IDENTIFICATION:
-You are an Editor at an Aerospace News Bureau. Convert this personal vlog transcript into a professional, third-person news report for "we go for powered descent".
+You are an Editor at an Aerospace News Bureau. Convert this personal vlog transcript into a professional, third-person news report for "this is your favorite space channel".
 
 ORIGINAL VIDEO TITLE (for context only — do not echo): ${title}
 
@@ -102,7 +102,7 @@ MANDATE:
 - DO NOT SUMMARIZE. Maintain the depth and technical density of the source. The finished script should be approximately the same length as the source transcript; a noticeably shorter rewrite is a failure.
 - RUTHLESS PERSONA PURGE: Remove all "I", "me", "my", "we" used as the host, "our team", and personal anecdotes (e.g. "I spoke to Elon", "I met Elon", "when I was at the Cape"). Convert subjective opinions into objective analytical statements ("Analysis suggests", "The data indicates"). Drop named source-channel hosts (e.g. "Kevin", "Felix") entirely.
 - NO STACCATO: Use professional broadcast prosody — a natural mix of complex technical explanations and punchy summary statements. No one-thought-per-line. No uniform sentence lengths.
-- NO CHANNEL LEAKAGE: Strip the source channel's name, host, sponsor, Patreon, and any "this channel / our channel / our show" phrasing. The only reporting entity referenced is "we go for powered descent".
+- NO CHANNEL LEAKAGE: Strip the source channel's name, host, sponsor, Patreon, and any "this channel / our channel / our show" phrasing. The only reporting entity referenced is "this is your favorite space channel".
 - NO PRESENTATION ARTIFACTS: No music cues, "[Music]", "[Applause]", "♪", emoji, markdown, bullet lists, headings, or stage directions. Broadcast prose only.
 - NO SOURCE PLAGIARISM: No run of more than four consecutive words may be reused verbatim from the source. Unique proper nouns (e.g. "Falcon Heavy", "International Space Station") do not count.
 - PROPER NOUN FIDELITY: Spell every proper noun exactly as it appears in the original.
@@ -119,7 +119,7 @@ STRUCTURE (continuous broadcast copy, no labels in the output):
 1. THE NEWS LEAD: A professional five-Ws Lead — who, what, where, when, why — explaining the strategic significance immediately. No greeting, no hook, no teaser.
 2. THE TECHNICAL REPORT: Detailed breakdown of the hardware, mission, or policy. This is where you integrate the augmented physics and data anchoring. Preserve every metric, date, payload mass, thrust value, orbit, mission ID, timeline, and engineering tradeoff from the source.
 3. STRATEGIC IMPLICATIONS: Analyze how this event shifts the landscape of the industry or global competition. The Historical Mirror is most useful here.
-4. ANALYTICAL CLOSER: Exactly one professional question inviting viewer analysis. Template: "For more deep-dives into [Topic], subscribe to we go for powered descent. How do you evaluate [Specific Strategic Shift]? Let us know your analysis in the comments." Replace [Topic] and [Specific Strategic Shift] with concrete references to the actual story. This is the ONLY engagement / subscribe / comment instruction in the script — no opener aside, no mid-script asides.
+4. ANALYTICAL CLOSER: Exactly one professional question inviting viewer analysis. Template: "For more deep-dives into [Topic], subscribe to this is your favorite space channel. How do you evaluate [Specific Strategic Shift]? Let us know your analysis in the comments." Replace [Topic] and [Specific Strategic Shift] with concrete references to the actual story. This is the ONLY engagement / subscribe / comment instruction in the script — no opener aside, no mid-script asides.
 
 ${NUMBER_RULES}
 
@@ -169,8 +169,8 @@ GENERAL GUIDELINES (re-check after applying fixes):
 - No proper-noun typos. Spell every name exactly as in the original.
 - No run of more than four consecutive words copied from the source.
 - No markdown, music cues, emoji, or bracketed stage directions.
-- The source channel's name, host, sponsor, and any "this channel / our channel / our show" reference must be replaced with "we go for powered descent".
-- Exactly ONE professional closing call to action at the very end inviting subscription to "we go for powered descent" and posing a topic-specific analytical question for the comments. No opener subscribe aside. No mid-script asides.
+- The source channel's name, host, sponsor, and any "this channel / our channel / our show" reference must be replaced with "this is your favorite space channel".
+- Exactly ONE professional closing call to action at the very end inviting subscription to "this is your favorite space channel" and posing a topic-specific analytical question for the comments. No opener subscribe aside. No mid-script asides.
 
 ORIGINAL TRANSCRIPT (ground truth for facts):
 """
@@ -186,7 +186,7 @@ Output ONLY the corrected script. No preamble, no headings, no markdown.`;
 }
 
 function buildAccuracyPrompt(rewrittenScript: string, originalTranscript: string): string {
-  return `Audit a rewritten broadcast script against the original transcript. The rewrite is meant to be a faceless aerospace news report for "we go for powered descent" — not a vlog, not a personal narration. Produce a holistic accuracy score plus a list of concrete defects the editor can fix.
+  return `Audit a rewritten broadcast script against the original transcript. The rewrite is meant to be a faceless aerospace news report for "this is your favorite space channel" — not a vlog, not a personal narration. Produce a holistic accuracy score plus a list of concrete defects the editor can fix.
 
 CRITERIA — weigh these when assigning the score (use your judgment on severity, do not just count items):
 - Persona bleed (CRITICAL): the script must contain ZERO first-person references and ZERO host-name carryover — no "I", "me", "my", "we" used as the host, "our team"; no personal anecdotes ("I spoke to Elon", "I met Elon", "when I was at the Cape"); no source-channel host names ("Kevin", "Marcus", "Felix", or any other named presenter). If ANY of these remain, the OVERALL score MUST be below 50 — no exceptions. ~20 points.
@@ -198,7 +198,7 @@ CRITERIA — weigh these when assigning the score (use your judgment on severity
 - Rhythm check (NOT staccato, NOT uniform): broadcast news flow — a mix of complex technical explanations and punchy summary statements. Multi-clause sentences when laying out engineering detail, short declarative beats when the news lands. Robotic one-thought-per-line, uniformly short, or telegraphic chopping is an "ear" defect. No markdown, no bullets, no headings, no music cues, no emoji, no brackets. ~10 points.
 - Number spelling: every digit, %, $, year, decimal, currency, or unit symbol must be spelled out as a narrator would say it. ~5 points.
 - Original phrasing: no run of more than four consecutive words copied verbatim from the source (unique proper nouns excluded). ~5 points.
-- Channel rebrand and closing CTA: source channel/host/sponsor swapped to "we go for powered descent"; exactly ONE professional closing call to action at the end (no opener aside, no mid-script asides). ~5 points.
+- Channel rebrand and closing CTA: source channel/host/sponsor swapped to "this is your favorite space channel"; exactly ONE professional closing call to action at the end (no opener aside, no mid-script asides). ~5 points.
 
 Score guidance: 100 = no defects; ~90 = essentially clean, only trivial issues; 70-89 = several real defects; 50-69 = significant fact or formatting problems; <50 = major fidelity loss.
 
@@ -211,7 +211,7 @@ Categories:
 - "fact": a source metric was dropped, summarized into a vague term ("a lot", "huge", "many"), a paragraph of source detail collapsed into a single sentence (technical-density failure), OR a fabricated/unverifiable augmentation was inserted.
 - "augmentation": the bureau augmentation requirement is unmet — fewer than 2 high-signal additions woven in, or none of the three universal classes (IDENTIFY THE PHYSICS, HISTORICAL MIRROR, DATA ANCHORING) is present, or augmentations overshadow rather than serve the source. The "fix" field should suggest a topic-appropriate addition (e.g. for a Mars script: a specific atmospheric pressure / chemistry of perchlorates; for a launch-cadence script: an Apollo-era flight rate parallel; for a competitor story: named hardware like "Long March 9" instead of "China is competing").
 - "ear": broadcast prose reads as robotic / staccato / one-thought-per-line, or sentences are uniformly short, or it carries article artifacts (lists, headings, parentheticals, "as you can see").
-- "branding": the source channel's name, host, sponsor, or "this channel / our channel / our show" leaked through, or "we go for powered descent" is missing in the closing.
+- "branding": the source channel's name, host, sponsor, or "this channel / our channel / our show" leaked through, or "this is your favorite space channel" is missing in the closing.
 - "engagement": more than one CTA aside is present, an opener subscribe aside is present, the closing CTA is missing, or the closing CTA is templated rather than topic-specific.
 
 Do NOT log positive observations ("digits are fully spelled", "no markdown found") as issues. If the script is clean, return an empty array.
