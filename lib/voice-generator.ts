@@ -88,16 +88,3 @@ export async function resolveTtsAudioUrl(jobId: string): Promise<string> {
   return upstream;
 }
 
-export async function uploadTtsAudioToS3(jobId: string): Promise<string> {
-  const { putBuffer } = await import('./storage/s3');
-  const { s3Key } = await import('./storage/aws');
-  const upstream = ttsUpstreamDownloadUrl(jobId);
-  const resp = await fetch(upstream);
-  if (!resp.ok) {
-    throw new Error(`TTS download failed: ${resp.status} ${resp.statusText}`);
-  }
-  const buf = Buffer.from(await resp.arrayBuffer());
-  const key = s3Key('audio', `${jobId}.mp3`);
-  const { url } = await putBuffer(key, buf, 'audio/mpeg');
-  return url;
-}
