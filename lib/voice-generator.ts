@@ -39,6 +39,7 @@ export interface TtsJobStatus {
   status: string;
   progress?: number;
   error?: string;
+  audioUrl?: string;
   raw: Record<string, unknown>;
 }
 
@@ -54,6 +55,7 @@ export async function getTtsJob(jobId: string): Promise<TtsJobStatus> {
     status,
     progress: typeof data.progress === 'number' ? data.progress : undefined,
     error: typeof data.error === 'string' ? data.error : undefined,
+    audioUrl: typeof data.audioUrl === 'string' ? data.audioUrl : undefined,
     raw: data,
   };
 }
@@ -77,14 +79,5 @@ export async function pollTtsJob(
 
 export function ttsUpstreamDownloadUrl(jobId: string): string {
   return `${BASE_URL}/tts/jobs/${encodeURIComponent(jobId)}/download`;
-}
-
-export async function resolveTtsAudioUrl(jobId: string): Promise<string> {
-  const upstream = ttsUpstreamDownloadUrl(jobId);
-  const resp = await fetch(upstream, { method: 'HEAD', redirect: 'manual' });
-  const location = resp.headers.get('location');
-  if (location && /\.mp3(\?|$)/i.test(location)) return location;
-  if (location) return location;
-  return upstream;
 }
 

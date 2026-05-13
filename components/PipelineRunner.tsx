@@ -163,37 +163,30 @@ function CopyButton({ text, label = 'copy' }: { text: string; label?: string }) 
   );
 }
 
-function DownloadButton({ url, filename }: { url: string; filename: string }) {
-  const [working, setWorking] = useState(false);
-  const onClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (working) return;
-    setWorking(true);
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`fetch ${resp.status}`);
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
-    } catch {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } finally {
-      setWorking(false);
-    }
-  };
+function OpenLink({ url, label = 'open' }: { url: string; label?: string }) {
   return (
     <a
       href={url}
-      onClick={onClick}
-      className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] px-2 py-0.5 border border-[var(--border)] rounded"
     >
-      {working ? 'downloading…' : 'download'}
+      {label}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-3 h-3"
+        aria-hidden="true"
+      >
+        <path d="M14 3h7v7" />
+        <path d="M10 14L21 3" />
+        <path d="M21 14v7H3V3h7" />
+      </svg>
     </a>
   );
 }
@@ -595,18 +588,15 @@ export function PipelineRunner() {
                 <span className="text-xs uppercase tracking-wider text-[var(--success)]">
                   Audio ready
                 </span>
-                <CopyButton text={finalAudio} label="copy url" />
+                <OpenLink url={finalAudio} />
               </div>
               <audio controls src={finalAudio} className="w-full" />
-              <div className="flex items-center justify-between gap-2">
-                <input
-                  readOnly
-                  value={finalAudio}
-                  onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
-                  className="flex-1 min-w-0 text-xs font-mono px-2 py-1 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground-muted)]"
-                />
-                <DownloadButton url={finalAudio} filename={`${job?.videoId ?? 'audio'}.mp3`} />
-              </div>
+              <input
+                readOnly
+                value={finalAudio}
+                onClick={(e) => (e.currentTarget as HTMLInputElement).select()}
+                className="w-full text-xs font-mono px-2 py-1 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground-muted)]"
+              />
             </div>
           )}
 
@@ -736,11 +726,7 @@ export function PipelineRunner() {
                               Audio
                             </span>
                             <div className="flex items-center gap-2">
-                              <DownloadButton
-                                url={full.audio_url}
-                                filename={`${full.video_id ?? full.job_id}.mp3`}
-                              />
-                              <CopyButton text={full.audio_url} label="copy url" />
+                              <OpenLink url={full.audio_url} />
                             </div>
                           </div>
                           <audio controls src={full.audio_url} className="w-full" />

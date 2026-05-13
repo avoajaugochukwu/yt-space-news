@@ -3,7 +3,7 @@ import { fetchLatestVideo, type LatestVideo } from './apify';
 import { fetchTranscript } from './transcript';
 import { rewriteUntilAccurate } from './rewrite';
 import { generateSeoMetadata } from './seo';
-import { normalizeText, createTtsJob, pollTtsJob, resolveTtsAudioUrl, VOICE_NAME } from './voice-generator';
+import { normalizeText, createTtsJob, pollTtsJob, VOICE_NAME } from './voice-generator';
 import { isProcessed, getProcessed, saveProcessed, saveRun } from './turso';
 import { jobStore } from './job-store';
 import type { PipelineEvent, PipelineJob, PipelineStep } from '@/types/pipeline';
@@ -175,7 +175,7 @@ async function runPipeline(
 
     emit(jobId, 'tts-poll', 'started', 'Polling TTS job');
     let lastStatus = '';
-    await pollTtsJob(ttsJobId, (s) => {
+    const finalStatus = await pollTtsJob(ttsJobId, (s) => {
       if (s.status !== lastStatus) {
         lastStatus = s.status;
         emit(jobId, 'tts-poll', 'progress', `Status: ${s.status}`, {
@@ -184,8 +184,10 @@ async function runPipeline(
         });
       }
     });
-    emit(jobId, 'tts-poll', 'progress', 'Resolving audio URL');
-    const audioUrl = await resolveTtsAudioUrl(ttsJobId);
+    const audioUrl = finalStatus.audioUrl;
+    if (!audioUrl) {
+      throw new Error(`TTS job ${ttsJobId} completed without an audioUrl`);
+    }
     jobStore.update(jobId, { audioUrl });
     emit(jobId, 'tts-poll', 'completed', 'Audio ready', { audioUrl });
 
