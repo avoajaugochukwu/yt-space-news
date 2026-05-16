@@ -249,17 +249,41 @@ function SeoPanel({ seo }: { seo: SeoMetadata }) {
                 </div>
               )}
 
-              {t.thumbnailText && (
+              {(t.thumbnailKicker || t.thumbnailText) && (
                 <div className="flex items-center justify-between gap-2 border-t border-[var(--border)] pt-2">
                   <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-0.5">
-                      Thumbnail text
+                    <div className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-1">
+                      Thumbnail text (kicker / headline)
                     </div>
-                    <div className="text-sm font-bold text-[var(--foreground)] tracking-wide uppercase truncate">
-                      {t.thumbnailText}
-                    </div>
+                    {t.thumbnailKicker && (
+                      <div className="inline-block text-[10px] font-bold tracking-wider uppercase px-1.5 py-0.5 mb-1 bg-[var(--error)] text-white rounded-sm">
+                        {t.thumbnailKicker}
+                      </div>
+                    )}
+                    {t.thumbnailText && (
+                      <div className="text-sm font-bold text-[var(--foreground)] tracking-wide uppercase truncate">
+                        {t.thumbnailText}
+                      </div>
+                    )}
                   </div>
-                  <CopyButton text={t.thumbnailText} />
+                  <div className="flex flex-col gap-1 shrink-0">
+                    {t.thumbnailKicker && <CopyButton text={t.thumbnailKicker} label="copy kicker" />}
+                    {t.thumbnailText && <CopyButton text={t.thumbnailText} label="copy text" />}
+                  </div>
+                </div>
+              )}
+
+              {t.imagePrompt && (
+                <div className="border-t border-[var(--border)] pt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]">
+                      Image prompt ({t.imagePrompt.length}c)
+                    </span>
+                    <CopyButton text={t.imagePrompt} label="copy prompt" />
+                  </div>
+                  <pre className="whitespace-pre-wrap text-xs text-[var(--foreground)] bg-[var(--background)] border border-[var(--border)] rounded p-2 max-h-40 overflow-y-auto">
+                    {t.imagePrompt}
+                  </pre>
                 </div>
               )}
             </li>

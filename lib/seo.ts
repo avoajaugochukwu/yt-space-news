@@ -6,7 +6,9 @@ export interface SeoTitle {
   principleNumber: number;
   estimatedCTR: 'high' | 'medium';
   imageKeywords: string[];
+  thumbnailKicker: string;
   thumbnailText: string;
+  imagePrompt: string;
 }
 
 export interface SeoMetadata {
@@ -37,7 +39,7 @@ ${PRINCIPLES}
 === TASK ===
 Read the rewritten broadcast script below and generate YouTube SEO metadata for the upload.
 
-1. PACKAGES: Produce exactly 7 thumbnail packages. Each package is a tightly coordinated bundle of {title, imageKeywords, thumbnailText} — the three must reinforce the same angle so they read as a single ad creative.
+1. PACKAGES: Produce exactly 7 thumbnail packages. Each package is a tightly coordinated bundle of {title, imageKeywords, thumbnailKicker, thumbnailText, imagePrompt} — the fields must reinforce the same angle so they read as a single ad creative.
    - Each package uses a DIFFERENT psychological principle from the framework above.
    - Rank packages by predicted CTR (best first). Mark the top 2 as "high", the rest "medium".
 
@@ -53,18 +55,28 @@ Read the rewritten broadcast script below and generate YouTube SEO metadata for 
    - Bad (too abstract): "innovation", "the future", "drama", "uncertainty".
    - The two phrases should work together as a single composed shot (e.g. one subject + one environment), not two unrelated ideas.
 
-4. THUMBNAIL TEXT (per package): "thumbnailText" is a single short overlay line — NOT two lines. 2–5 words, ALL CAPS, the dominant punch beside the image. Examples: "LANDER WINDOW SLIPS", "CREW CUT TO TWO", "TIMELINE LEAKS", "BOOSTER LOST", "MARS TARGET SHIFTS".
-   - It must NOT duplicate the title's wording — it's the visual hook, not a restatement.
-   - Tightly pair with the imageKeywords and the title's angle.
+4. THUMBNAIL TEXT (per package): the on-thumbnail copy is rendered in post as TWO stacked elements in the bottom-left of the image — a small kicker badge sitting directly above a larger headline bar (broadcast-news lower-third style).
+   - "thumbnailKicker": the small top eyebrow/badge label. 1–3 words, ALL CAPS, no punctuation. It's a CATEGORY or URGENCY tag, not a sentence. Examples: "COMPETITOR ALERT", "BREAKING", "EXCLUSIVE", "JUST IN", "MAJOR SETBACK", "INDUSTRY SHOCK", "LIVE UPDATE", "MARS UPDATE", "ARTEMIS WATCH".
+   - "thumbnailText": the larger main headline line below the kicker. 2–5 words, ALL CAPS, the dominant punch. Examples: "LANDER WINDOW SLIPS", "CREW CUT TO TWO", "TIMELINE LEAKS", "BOOSTER LOST", "MARS TARGET SHIFTS", "RIVALS CLOSING THE GAP".
+   - Neither field may duplicate the title's exact wording — they're the visual hook, not a restatement.
+   - The kicker frames the angle; the main line delivers the punch. Together with imageKeywords they must read as one coordinated creative.
 
-5. DESCRIPTION: A YouTube description in newsroom voice.
+5. IMAGE PROMPT (per package): "imagePrompt" is a single plain-English paragraph (40–80 words) that a model-agnostic text-to-image generator (Flux, SDXL, Ideogram, DALL-E, Midjourney) can turn directly into a 16:9 YouTube thumbnail BACKGROUND.
+   - MUST incorporate the imageKeywords as the primary subjects — they are the shot list. Expand them with concrete framing, lighting, lens, atmosphere, and a clear focal point.
+   - Do NOT instruct the model to render text, captions, titles, watermarks, logos, or UI overlays anywhere in the image. The thumbnailKicker + thumbnailText are composited later in post as a stacked lower-third in the BOTTOM-LEFT of the frame; the image must leave clean, low-detail negative space there so the text reads on top.
+   - Push the primary subject toward the right two-thirds / upper-right of the frame. The bottom-left ~40% should be uncluttered background (sky, smooth surface, soft gradient, out-of-focus terrain) — never the focal point.
+   - Voice: photorealistic broadcast-newsroom / aerospace press-photo aesthetic. Cinematic, high-contrast, slight teal-and-orange grade, dramatic but credible. No cartoon, no illustration, no anime, no surrealism unless the source story is literally about that.
+   - Be specific and shootable. Example: "Two prototype Starships side by side on a coastal launch pad at golden-hour dusk, low wide-angle hero shot framed from the right, exhaust glow rising under the nearest vehicle, drone silhouettes hovering mid-air, soft out-of-focus coastline and orange sky filling the bottom-left third as clean negative space for overlay text."
+   - Single paragraph, no lists, no Midjourney flags (no "--ar", no "::"), no negative prompts. End with the composition note "leave clean low-detail negative space in the bottom-left for stacked overlay text".
+
+6. DESCRIPTION: A YouTube description in newsroom voice.
    - Start with a 2–3 sentence broadcast lead summarizing the news event and its strategic significance — no "in this video", no first person.
    - Then up to 5 chapters formatted EXACTLY as: "TIMESTAMP ▶ Chapter Title", first chapter at 0:00, spaced roughly evenly. Use M:SS format.
    - After chapters, include 2–3 relevant hashtags on their own line.
    - End with a brief call-to-action that invites viewers to subscribe to "this is your favorite space channel" and drop their analysis in the comments.
    - Use real newlines (\\n) — no markdown headings, no asterisks, no bullets.
 
-6. TAGS: 15 to 20 YouTube tags.
+7. TAGS: 15 to 20 YouTube tags.
    - Mix broad and specific. Include topic keywords, related topics, and long-tail variations.
    - Lower-case unless a proper noun. No "#" prefix.
 
@@ -72,7 +84,7 @@ ORIGINAL VIDEO TITLE (for context only — do not echo): ${sourceTitle}
 
 === OUTPUT FORMAT ===
 Return ONLY one JSON object on a single line, no preamble, no markdown fences. The "titles" array MUST contain exactly 7 packages.
-{"titles":[{"title":"...","principle":"...","principleNumber":1,"estimatedCTR":"high","imageKeywords":["spacex starship on launch pad","mission control wide shot"],"thumbnailText":"LANDER WINDOW SLIPS"}],"description":"...","tags":["tag1","tag2"]}
+{"titles":[{"title":"...","principle":"...","principleNumber":1,"estimatedCTR":"high","imageKeywords":["spacex starship on launch pad","mission control wide shot"],"thumbnailKicker":"COMPETITOR ALERT","thumbnailText":"RIVALS CLOSING THE GAP","imagePrompt":"Two prototype Starships side by side on a coastal launch pad at golden-hour dusk, low wide-angle hero shot framed from the right, exhaust glow rising under the nearest vehicle, drone silhouettes hovering mid-air, soft out-of-focus coastline and orange sky filling the bottom-left third as clean negative space for overlay text. Photorealistic broadcast-newsroom aesthetic, cinematic, high contrast, slight teal-and-orange grade. Leave clean low-detail negative space in the bottom-left for stacked overlay text."}],"description":"...","tags":["tag1","tag2"]}
 
 === REWRITTEN NARRATION ===
 """
@@ -102,8 +114,12 @@ function parseSeo(raw: string): SeoMetadata {
                 .filter(Boolean)
                 .slice(0, 4)
             : [],
+          thumbnailKicker:
+            typeof t.thumbnailKicker === 'string' ? t.thumbnailKicker.trim() : '',
           thumbnailText:
             typeof t.thumbnailText === 'string' ? t.thumbnailText.trim() : '',
+          imagePrompt:
+            typeof t.imagePrompt === 'string' ? t.imagePrompt.trim() : '',
         }))
     : [];
   const description = typeof parsed.description === 'string' ? parsed.description : '';
