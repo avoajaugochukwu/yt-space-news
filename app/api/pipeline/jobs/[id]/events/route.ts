@@ -35,6 +35,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       const unsub = jobStore.subscribe(id, (event: PipelineEvent) => {
         send('event', event);
         const current = jobStore.get(id);
+        if (current) send('snapshot', { job: current });
         if (current && isTerminal(current.status)) {
           send('end', { job: current });
           unsub();
