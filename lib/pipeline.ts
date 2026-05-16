@@ -33,6 +33,7 @@ export function startPipeline(
     accuracyScore: null,
     audioUrl: null,
     transcript: null,
+    draftScript: null,
     script: null,
     seo: null,
     alreadyProcessed: false,
@@ -140,7 +141,7 @@ async function runPipeline(
     });
     jobStore.update(jobId, {
       accuracyScore: outcome.finalAccuracy.score,
-      script: outcome.finalScript,
+      draftScript: outcome.finalScript,
     });
     emit(
       jobId,
@@ -154,8 +155,27 @@ async function runPipeline(
       },
     );
 
+    const finalScriptPromise = jobStore.awaitFinalScript(jobId);
+    jobStore.update(jobId, { status: 'awaiting-input' });
+    emit(
+      jobId,
+      'await-final-script',
+      'started',
+      'Copy the draft into Cloud (faceless OS), then paste the final script back to continue',
+      { draftLength: outcome.finalScript.length },
+    );
+    const finalScript = await finalScriptPromise;
+    jobStore.update(jobId, { status: 'running', script: finalScript });
+    emit(
+      jobId,
+      'await-final-script',
+      'completed',
+      `Final script received (${finalScript.length.toLocaleString()} chars)`,
+      { finalLength: finalScript.length },
+    );
+
     emit(jobId, 'seo', 'started', 'Generating SEO titles, description, tags');
-    const seo = await generateSeoMetadata(outcome.finalScript, resolvedTitle);
+    const seo = await generateSeoMetadata(finalScript, resolvedTitle);
     jobStore.update(jobId, { seo });
     emit(
       jobId,
@@ -166,7 +186,7 @@ async function runPipeline(
     );
 
     emit(jobId, 'normalize', 'started', 'Normalizing for TTS');
-    const normalized = await normalizeText(outcome.finalScript);
+    const normalized = await normalizeText(finalScript);
     emit(jobId, 'normalize', 'completed', `Normalized (${normalized.length} chars)`);
 
     emit(jobId, 'tts-create', 'started', `Creating TTS job (${VOICE_NAME})`);
@@ -198,7 +218,8 @@ async function runPipeline(
       title: resolvedTitle,
       accuracy_score: outcome.finalAccuracy.score,
       audio_url: audioUrl,
-      script: outcome.finalScript,
+      script: finalScript,
+      draft_script: outcome.finalScript,
     });
     emit(jobId, 'persist', 'completed', 'Saved');
 
@@ -227,6 +248,7 @@ async function runPipeline(
           accuracy_score: final.accuracyScore,
           audio_url: final.audioUrl,
           transcript: final.transcript,
+          draft_script: final.draftScript,
           script: final.script,
           seo_json: final.seo ? JSON.stringify(final.seo) : null,
           error: final.error,

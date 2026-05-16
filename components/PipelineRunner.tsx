@@ -10,6 +10,7 @@ const STEP_ORDER: PipelineStep[] = [
   'dedupe',
   'transcript',
   'rewrite',
+  'await-final-script',
   'seo',
   'normalize',
   'tts-create',
@@ -23,6 +24,7 @@ const STEP_LABEL: Record<PipelineStep, string> = {
   dedupe: 'Check Turso for prior run',
   transcript: 'Fetch transcript',
   rewrite: 'Claude rewrite + audit (≥90%)',
+  'await-final-script': 'Awaiting final script from Cloud',
   seo: 'Generate SEO metadata',
   normalize: 'Normalize for TTS',
   'tts-create': 'Create TTS job',
@@ -115,6 +117,7 @@ interface LatestItem {
 
 interface RunFull extends RunListItem {
   transcript: string | null;
+  draft_script: string | null;
   script: string | null;
   seo_json: string | null;
   error: string | null;
@@ -318,6 +321,9 @@ export function PipelineRunner() {
   const [latestLoading, setLatestLoading] = useState(false);
   const [latestError, setLatestError] = useState<string | null>(null);
   const [latestChannel, setLatestChannel] = useState<string>('colonbina1');
+  const [pasteInput, setPasteInput] = useState('');
+  const [submittingFinal, setSubmittingFinal] = useState(false);
+  const [pasteError, setPasteError] = useState<string | null>(null);
   const evtSrcRef = useRef<EventSource | null>(null);
 
   const refreshRuns = async () => {
@@ -383,12 +389,42 @@ export function PipelineRunner() {
     };
   }, []);
 
+  const submitFinalScript = async () => {
+    if (!job || submittingFinal) return;
+    const trimmed = pasteInput.trim();
+    if (!trimmed) {
+      setPasteError('Paste the final script before submitting.');
+      return;
+    }
+    setSubmittingFinal(true);
+    setPasteError(null);
+    try {
+      const r = await fetch(`/api/pipeline/jobs/${job.id}/final-script`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script: trimmed }),
+      });
+      if (!r.ok) {
+        const data = (await r.json().catch(() => ({}))) as { error?: string };
+        setPasteError(data.error ?? `Request failed (${r.status})`);
+        return;
+      }
+      setPasteInput('');
+    } catch (e) {
+      setPasteError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSubmittingFinal(false);
+    }
+  };
+
   const startRun = async (selection?: LatestItem) => {
     if (running) return;
     setRunning(true);
     setSteps(emptySteps());
     setEventLog([]);
     setJob(null);
+    setPasteInput('');
+    setPasteError(null);
 
     const body = selection
       ? {
@@ -600,11 +636,76 @@ export function PipelineRunner() {
             </div>
           )}
 
+          {job?.status === 'awaiting-input' && job.draftScript && (
+            <div className="p-3 bg-[var(--background)] border border-[var(--warning)] rounded-md space-y-3">
+              <div className="text-xs uppercase tracking-wider text-[var(--warning)]">
+                Action required · take draft to Cloud (faceless OS), then paste final back
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+                    Draft script ({job.draftScript.length.toLocaleString()} chars)
+                  </span>
+                  <CopyButton text={job.draftScript} label="copy draft" />
+                </div>
+                <pre className="whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                  {job.draftScript}
+                </pre>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase tracking-wider text-[var(--accent)]">
+                    Paste final script
+                  </span>
+                  <span className="text-xs text-[var(--foreground-muted)]">
+                    {pasteInput.length.toLocaleString()} chars
+                  </span>
+                </div>
+                <textarea
+                  value={pasteInput}
+                  onChange={(e) => {
+                    setPasteInput(e.target.value);
+                    if (pasteError) setPasteError(null);
+                  }}
+                  disabled={submittingFinal}
+                  placeholder="Paste the final script returned from Cloud here…"
+                  className="w-full h-48 text-xs font-mono p-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded text-[var(--foreground)] focus:outline-none focus:border-[var(--accent)] resize-y"
+                />
+                {pasteError && (
+                  <div className="mt-2 text-xs text-[var(--error)]">{pasteError}</div>
+                )}
+                <div className="mt-2 flex justify-end">
+                  <ActionButton
+                    onClick={() => void submitFinalScript()}
+                    disabled={submittingFinal || !pasteInput.trim()}
+                    size="sm"
+                  >
+                    {submittingFinal ? 'submitting…' : 'Use as final script'}
+                  </ActionButton>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {job?.draftScript && job.status !== 'awaiting-input' && (
+            <div className="p-3 bg-[var(--background)] border border-[var(--border)] rounded-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs uppercase tracking-wider text-[var(--foreground-muted)]">
+                  Rewritten draft ({job.draftScript.length.toLocaleString()} chars)
+                </span>
+                <CopyButton text={job.draftScript} />
+              </div>
+              <pre className="whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                {job.draftScript}
+              </pre>
+            </div>
+          )}
+
           {job?.script && (
             <div className="p-3 bg-[var(--background)] border border-[var(--border)] rounded-md">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs uppercase tracking-wider text-[var(--accent)]">
-                  Rewritten script ({job.script.length.toLocaleString()} chars)
+                  Final script ({job.script.length.toLocaleString()} chars)
                 </span>
                 <CopyButton text={job.script} />
               </div>
@@ -757,13 +858,26 @@ export function PipelineRunner() {
                       {full.script && (
                         <details>
                           <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)] flex items-center justify-between gap-3">
-                            <span>Script ({full.script.length.toLocaleString()} chars)</span>
+                            <span>Final script ({full.script.length.toLocaleString()} chars)</span>
                             <span onClick={(e) => e.preventDefault()}>
                               <CopyButton text={full.script} />
                             </span>
                           </summary>
                           <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
                             {full.script}
+                          </pre>
+                        </details>
+                      )}
+                      {full.draft_script && (
+                        <details>
+                          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[var(--foreground-muted)] flex items-center justify-between gap-3">
+                            <span>Rewritten draft ({full.draft_script.length.toLocaleString()} chars)</span>
+                            <span onClick={(e) => e.preventDefault()}>
+                              <CopyButton text={full.draft_script} />
+                            </span>
+                          </summary>
+                          <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--foreground-muted)] max-h-72 overflow-y-auto bg-[var(--background-secondary)] border border-[var(--border)] rounded p-2">
+                            {full.draft_script}
                           </pre>
                         </details>
                       )}

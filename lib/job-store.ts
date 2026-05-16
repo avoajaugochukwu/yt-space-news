@@ -2,9 +2,15 @@ import type { PipelineEvent, PipelineJob } from '@/types/pipeline';
 
 type Listener = (event: PipelineEvent) => void;
 
+interface FinalScriptWaiter {
+  resolve: (script: string) => void;
+  reject: (err: Error) => void;
+}
+
 class JobStore {
   private jobs = new Map<string, PipelineJob>();
   private listeners = new Map<string, Set<Listener>>();
+  private finalScriptWaiters = new Map<string, FinalScriptWaiter>();
 
   create(job: PipelineJob): void {
     this.jobs.set(job.id, job);
@@ -41,6 +47,32 @@ class JobStore {
     return () => {
       subs?.delete(cb);
     };
+  }
+
+  awaitFinalScript(id: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.finalScriptWaiters.set(id, { resolve, reject });
+    });
+  }
+
+  resolveFinalScript(id: string, script: string): boolean {
+    const w = this.finalScriptWaiters.get(id);
+    if (!w) return false;
+    this.finalScriptWaiters.delete(id);
+    w.resolve(script);
+    return true;
+  }
+
+  rejectFinalScript(id: string, err: Error): boolean {
+    const w = this.finalScriptWaiters.get(id);
+    if (!w) return false;
+    this.finalScriptWaiters.delete(id);
+    w.reject(err);
+    return true;
+  }
+
+  isAwaitingFinalScript(id: string): boolean {
+    return this.finalScriptWaiters.has(id);
   }
 }
 

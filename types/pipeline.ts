@@ -3,6 +3,7 @@ export type PipelineStep =
   | 'dedupe'
   | 'transcript'
   | 'rewrite'
+  | 'await-final-script'
   | 'seo'
   | 'normalize'
   | 'tts-create'
@@ -10,7 +11,13 @@ export type PipelineStep =
   | 'persist'
   | 'done';
 
-export type PipelineStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type PipelineStatus =
+  | 'pending'
+  | 'running'
+  | 'awaiting-input'
+  | 'completed'
+  | 'failed'
+  | 'skipped';
 
 export interface SeoTitle {
   title: string;
@@ -45,6 +52,7 @@ export interface PipelineJob {
   accuracyScore: number | null;
   audioUrl: string | null;
   transcript: string | null;
+  draftScript: string | null;
   script: string | null;
   seo: SeoMetadata | null;
   alreadyProcessed: boolean;

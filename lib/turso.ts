@@ -33,11 +33,14 @@ async function ensureSchema(): Promise<void> {
       )
     `);
     const pvCols = await c.execute('PRAGMA table_info(processed_videos)');
-    const hasScript = pvCols.rows.some(
-      (r) => (r as unknown as { name: string }).name === 'script',
+    const pvNames = new Set(
+      pvCols.rows.map((r) => (r as unknown as { name: string }).name),
     );
-    if (!hasScript) {
+    if (!pvNames.has('script')) {
       await c.execute('ALTER TABLE processed_videos ADD COLUMN script TEXT');
+    }
+    if (!pvNames.has('draft_script')) {
+      await c.execute('ALTER TABLE processed_videos ADD COLUMN draft_script TEXT');
     }
     await c.execute(`
       CREATE TABLE IF NOT EXISTS pipeline_runs (
@@ -59,11 +62,14 @@ async function ensureSchema(): Promise<void> {
       )
     `);
     const prCols = await c.execute('PRAGMA table_info(pipeline_runs)');
-    const hasSeo = prCols.rows.some(
-      (r) => (r as unknown as { name: string }).name === 'seo_json',
+    const prNames = new Set(
+      prCols.rows.map((r) => (r as unknown as { name: string }).name),
     );
-    if (!hasSeo) {
+    if (!prNames.has('seo_json')) {
       await c.execute('ALTER TABLE pipeline_runs ADD COLUMN seo_json TEXT');
+    }
+    if (!prNames.has('draft_script')) {
+      await c.execute('ALTER TABLE pipeline_runs ADD COLUMN draft_script TEXT');
     }
     await c.execute(
       'CREATE INDEX IF NOT EXISTS idx_pipeline_runs_started_at ON pipeline_runs(started_at DESC)',
@@ -88,6 +94,7 @@ export interface ProcessedVideo {
   accuracy_score: number | null;
   audio_url: string | null;
   script: string | null;
+  draft_script: string | null;
   processed_at: string;
 }
 
@@ -117,6 +124,7 @@ export interface PipelineRunRow {
   accuracy_score: number | null;
   audio_url: string | null;
   transcript: string | null;
+  draft_script: string | null;
   script: string | null;
   seo_json: string | null;
   error: string | null;
@@ -135,6 +143,7 @@ export async function saveRun(v: {
   accuracy_score: number | null;
   audio_url: string | null;
   transcript: string | null;
+  draft_script: string | null;
   script: string | null;
   seo_json: string | null;
   error: string | null;
@@ -145,9 +154,9 @@ export async function saveRun(v: {
   await getClient().execute({
     sql: `INSERT OR REPLACE INTO pipeline_runs
             (job_id, channel_handle, video_id, video_url, video_title, status,
-             already_processed, accuracy_score, audio_url, transcript, script,
-             seo_json, error, started_at, finished_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             already_processed, accuracy_score, audio_url, transcript, draft_script,
+             script, seo_json, error, started_at, finished_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       v.job_id,
       v.channel_handle,
@@ -159,6 +168,7 @@ export async function saveRun(v: {
       v.accuracy_score,
       v.audio_url,
       v.transcript,
+      v.draft_script,
       v.script,
       v.seo_json,
       v.error,
@@ -171,7 +181,7 @@ export async function saveRun(v: {
 const RUN_LIST_COLS =
   'job_id, channel_handle, video_id, video_url, video_title, status, already_processed, accuracy_score, audio_url, started_at, finished_at';
 const RUN_FULL_COLS =
-  'job_id, channel_handle, video_id, video_url, video_title, status, already_processed, accuracy_score, audio_url, transcript, script, seo_json, error, started_at, finished_at';
+  'job_id, channel_handle, video_id, video_url, video_title, status, already_processed, accuracy_score, audio_url, transcript, draft_script, script, seo_json, error, started_at, finished_at';
 
 export async function listRuns(limit = 100): Promise<PipelineRunRow[]> {
   await ensureSchema();
@@ -201,10 +211,13 @@ export async function isProcessed(videoId: string): Promise<boolean> {
   return r.rows.length > 0;
 }
 
+const PV_COLS =
+  'video_id, channel_handle, title, accuracy_score, audio_url, script, draft_script, processed_at';
+
 export async function getProcessed(videoId: string): Promise<ProcessedVideo | null> {
   await ensureSchema();
   const r = await getClient().execute({
-    sql: 'SELECT video_id, channel_handle, title, accuracy_score, audio_url, script, processed_at FROM processed_videos WHERE video_id = ? LIMIT 1',
+    sql: `SELECT ${PV_COLS} FROM processed_videos WHERE video_id = ? LIMIT 1`,
     args: [videoId],
   });
   if (r.rows.length === 0) return null;
@@ -218,13 +231,22 @@ export async function saveProcessed(v: {
   accuracy_score: number | null;
   audio_url: string | null;
   script: string | null;
+  draft_script: string | null;
 }): Promise<void> {
   await ensureSchema();
   await getClient().execute({
     sql: `INSERT OR REPLACE INTO processed_videos
-            (video_id, channel_handle, title, accuracy_score, audio_url, script, processed_at)
-          VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    args: [v.video_id, v.channel_handle, v.title, v.accuracy_score, v.audio_url, v.script],
+            (video_id, channel_handle, title, accuracy_score, audio_url, script, draft_script, processed_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+    args: [
+      v.video_id,
+      v.channel_handle,
+      v.title,
+      v.accuracy_score,
+      v.audio_url,
+      v.script,
+      v.draft_script,
+    ],
   });
 }
 
@@ -234,7 +256,7 @@ export async function getProcessedByIds(videoIds: string[]): Promise<Map<string,
   await ensureSchema();
   const placeholders = videoIds.map(() => '?').join(',');
   const r = await getClient().execute({
-    sql: `SELECT video_id, channel_handle, title, accuracy_score, audio_url, script, processed_at
+    sql: `SELECT ${PV_COLS}
           FROM processed_videos WHERE video_id IN (${placeholders})`,
     args: videoIds,
   });
@@ -247,7 +269,7 @@ export async function getProcessedByIds(videoIds: string[]): Promise<Map<string,
 export async function listProcessed(limit = 50): Promise<ProcessedVideo[]> {
   await ensureSchema();
   const r = await getClient().execute({
-    sql: 'SELECT video_id, channel_handle, title, accuracy_score, audio_url, script, processed_at FROM processed_videos ORDER BY processed_at DESC LIMIT ?',
+    sql: `SELECT ${PV_COLS} FROM processed_videos ORDER BY processed_at DESC LIMIT ?`,
     args: [limit],
   });
   return r.rows as unknown as ProcessedVideo[];
